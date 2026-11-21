@@ -152,11 +152,16 @@ def validate_cookie(cookie_str: str, auth_user: str = "") -> dict:
     if m:
         detected_auth_user = m.group(1)
 
+    detected_xsrf = ""
+    xm = re.search(r'"SNlM0e"\s*:\s*"([^"]+)"', body)
+    if xm:
+        detected_xsrf = xm.group(1)
+
     if "WIZ_global_data" in body or "SNlM0e" in body or 'data-app="gemini"' in body:
         return {"valid": True, "state": "ok", "detail": "Connected to Gemini.",
-                "auth_user": detected_auth_user}
+                "auth_user": detected_auth_user, "xsrf_token": detected_xsrf}
     return {"valid": False, "state": "expired", "detail": "Not signed in to Gemini.",
-            "auth_user": detected_auth_user}
+            "auth_user": detected_auth_user, "xsrf_token": detected_xsrf}
 
 
 def make_sapisidhash(sapisid: str) -> str:
@@ -211,7 +216,8 @@ def _apply_chat_persistence_flags(inner: list) -> None:
         inner[41] = [2]
 
 
-def _build_payload(prompt: str, model_id: int, think_mode: int, file_refs: list = None, extra_fields: dict = None) -> str:
+def _build_payload(prompt: str, model_id: int, think_mode: int, file_refs: list = None,
+                   extra_fields: dict = None, xsrf_token: str = "") -> str:
     inner = [None] * 102
     if file_refs:
         refs = [[None, None, ref] for ref in file_refs]
@@ -239,8 +245,9 @@ def _build_payload(prompt: str, model_id: int, think_mode: int, file_refs: list 
             inner[k] = v
     outer = [None, json.dumps(inner)]
     params = {"f.req": json.dumps(outer)}
-    if CONFIG.get("xsrf_token"):
-        params["at"] = CONFIG["xsrf_token"]
+    xsrf = xsrf_token or CONFIG.get("xsrf_token")
+    if xsrf:
+        params["at"] = xsrf
     return urllib.parse.urlencode(params)
 
 
@@ -296,13 +303,21 @@ def extract_response_text(raw: str) -> str:
         for t in _extract_texts_from_line(line):
             if len(t) > len(last_text):
                 last_text = t
-    return clean_text(last_text)
+    text = clean_text(last_text)
+    if not text:
+        raise RuntimeError(
+            "Gemini returned an empty response. This usually means the connected "
+            "account session needs to be refreshed — please reconnect your Gemini "
+            "account in Dashboard → Settings and try again."
+        )
+    return text
 
 
 def generate(prompt: str, model_id: int, think_mode: int, file_refs: list = None,
-             extra_fields: dict = None, cookie: str = "", auth_user: str = "") -> str:
+             extra_fields: dict = None, cookie: str = "", auth_user: str = "",
+             xsrf_token: str = "") -> str:
     """Non-streaming generation with retry."""
-    body = _build_payload(prompt, model_id, think_mode, file_refs, extra_fields).encode()
+    body = _build_payload(prompt, model_id, think_mode, file_refs, extra_fields, xsrf_token).encode()
     url = _get_url(auth_user)
     headers = _build_headers(cookie, auth_user)
     ctx = _get_ssl_ctx()
@@ -331,15 +346,16 @@ def generate(prompt: str, model_id: int, think_mode: int, file_refs: list = None
 
 
 def generate_stream(prompt: str, model_id: int, think_mode: int, file_refs: list = None,
-                    extra_fields: dict = None, cookie: str = "", auth_user: str = ""):
+                    extra_fields: dict = None, cookie: str = "", auth_user: str = "",
+                    xsrf_token: str = ""):
     """Streaming generation via httpx with retry on connection failure."""
     if not HAS_HTTPX:
-        text = generate(prompt, model_id, think_mode, file_refs, extra_fields, cookie, auth_user)
+        text = generate(prompt, model_id, think_mode, file_refs, extra_fields, cookie, auth_user, xsrf_token)
         if text:
             yield text
         return
 
-    body = _build_payload(prompt, model_id, think_mode, file_refs, extra_fields)
+    body = _build_payload(prompt, model_id, think_mode, file_refs, extra_fields, xsrf_token)
     url = _get_url(auth_user)
     headers = _build_headers(cookie, auth_user)
     client = _get_httpx_client()
@@ -392,6 +408,12 @@ def generate_stream(prompt: str, model_id: int, think_mode: int, file_refs: list
                             emitted_raw_text = snapshot
                             if delta:
                                 yield delta
+            if not emitted_raw_text:
+                raise RuntimeError(
+                    "Gemini returned an empty response. This usually means the connected "
+                    "account session needs to be refreshed — please reconnect your Gemini "
+                    "account in Dashboard → Settings and try again."
+                )
             return
         except Exception as e:
             last_err = e

@@ -97,6 +97,7 @@ def init_db():
         gemini_cookie_at REAL DEFAULT 0.0,
         gemini_cookie_verified_at REAL DEFAULT 0.0,
         gemini_auth_user TEXT DEFAULT '',
+        gemini_xsrf_token TEXT DEFAULT '',
         gemini_api_key TEXT DEFAULT '',
         gemini_api_key_at REAL DEFAULT 0.0,
         gemini_oauth_access_token TEXT DEFAULT '',
@@ -173,6 +174,7 @@ def init_db():
         "gemini_cookie_at": "ALTER TABLE users ADD COLUMN gemini_cookie_at REAL DEFAULT 0.0",
         "gemini_cookie_verified_at": "ALTER TABLE users ADD COLUMN gemini_cookie_verified_at REAL DEFAULT 0.0",
         "gemini_auth_user": "ALTER TABLE users ADD COLUMN gemini_auth_user TEXT DEFAULT ''",
+        "gemini_xsrf_token": "ALTER TABLE users ADD COLUMN gemini_xsrf_token TEXT DEFAULT ''",
         "gemini_api_key": "ALTER TABLE users ADD COLUMN gemini_api_key TEXT DEFAULT ''",
         "gemini_api_key_at": "ALTER TABLE users ADD COLUMN gemini_api_key_at REAL DEFAULT 0.0",
         "gemini_oauth_access_token": "ALTER TABLE users ADD COLUMN gemini_oauth_access_token TEXT DEFAULT ''",
@@ -302,14 +304,15 @@ def mark_cookie_verified(user_id: int, verified: bool = True) -> None:
     conn.close()
 
 
-def set_user_cookie(user_id: int, cookie: str, verified: bool = False, auth_user: str = "") -> float:
+def set_user_cookie(user_id: int, cookie: str, verified: bool = False, auth_user: str = "", xsrf_token: str = "") -> float:
     """Store an encrypted Gemini cookie for a user. Returns update timestamp."""
     now = time.time()
     conn = get_db_connection()
     conn.execute(
         "UPDATE users SET gemini_cookie = ?, gemini_cookie_at = ?, "
-        "gemini_cookie_verified_at = ?, gemini_auth_user = ? WHERE id = ?",
-        (encrypt_cookie(cookie.strip()), now, now if verified else 0.0, (auth_user or "").strip(), user_id),
+        "gemini_cookie_verified_at = ?, gemini_auth_user = ?, gemini_xsrf_token = ? WHERE id = ?",
+        (encrypt_cookie(cookie.strip()), now, now if verified else 0.0,
+         (auth_user or "").strip(), (xsrf_token or "").strip(), user_id),
     )
     conn.commit()
     conn.close()
@@ -395,7 +398,7 @@ def clear_user_cookie(user_id: int) -> None:
     conn = get_db_connection()
     conn.execute(
         "UPDATE users SET gemini_cookie = '', gemini_cookie_at = 0, "
-        "gemini_cookie_verified_at = 0, gemini_auth_user = '' WHERE id = ?",
+        "gemini_cookie_verified_at = 0, gemini_auth_user = '', gemini_xsrf_token = '' WHERE id = ?",
         (user_id,),
     )
     conn.commit()

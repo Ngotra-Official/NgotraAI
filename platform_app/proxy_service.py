@@ -144,6 +144,14 @@ def authenticate_api_key(request: Request) -> Tuple[Dict[str, Any], Dict[str, An
         user["gemini_auth_user"] = (_r["gemini_auth_user"] if _r else "") or ""
     except Exception:
         user["gemini_auth_user"] = ""
+    try:
+        from .database import get_db_connection as _gdb
+        _c = _gdb()
+        _r = _c.execute("SELECT gemini_xsrf_token FROM users WHERE id = ?", (int(user["id"]),)).fetchone()
+        _c.close()
+        user["gemini_xsrf_token"] = (_r["gemini_xsrf_token"] if _r else "") or ""
+    except Exception:
+        user["gemini_xsrf_token"] = ""
 
     # If the account index is unknown, probe Gemini once and cache the working
     # one. Without this, a secondary-account session returns empty responses.

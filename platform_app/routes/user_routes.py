@@ -141,7 +141,8 @@ def save_cookie(req: CookieRequest, current_user: dict = Depends(get_current_use
         raise HTTPException(status_code=400, detail=result["detail"])
     from ..gemini_connection import invalidate
     auth_user = req.auth_user or result.get("auth_user", "")
-    set_user_cookie(current_user["id"], cookie, verified=True, auth_user=auth_user)
+    xsrf = result.get("xsrf_token", "")
+    set_user_cookie(current_user["id"], cookie, verified=True, auth_user=auth_user, xsrf_token=xsrf)
     invalidate(current_user["id"])
     return {"success": True, "message": "Gemini account verified. Your API key now uses your own account."}
 
