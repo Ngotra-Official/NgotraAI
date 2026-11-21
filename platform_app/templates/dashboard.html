@@ -1501,11 +1501,15 @@ for chunk in response:
         }
 
         const duration = Math.round(Date.now() - startTime);
-        metaElem.innerText = `${duration}ms • ${Math.round(fullResponse.length / 4)} tokens`;
+        const estTokens = Math.max(1, Math.round((userText.length + fullResponse.length) / 4));
+        metaElem.innerText = `${duration}ms • ~${estTokens} tokens`;
 
         // Save into conversational memory
         conversationHistory.push({ role: "user", content: userText });
         conversationHistory.push({ role: "assistant", content: fullResponse });
+
+        // Refresh the live token balance so the sidebar/stats update immediately.
+        fetchAccessStatus();
 
       } catch (err) {
         textElem.className = "text-rose-600 font-medium";

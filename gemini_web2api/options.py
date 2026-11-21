@@ -10,8 +10,8 @@ from typing import Any, Dict, List, Optional
 
 
 def token_count(text: Optional[str]) -> int:
-    """Cheap, deterministic token estimate (4 characters ~= 1 token)."""
-    return len(text or "") // 4
+    """Cheap, deterministic token estimate (4 chars ~= 1 token, min 1 if non-empty)."""
+    return max(1, len(text or "") // 4) if (text or "").strip() else 0
 
 
 def get_max_tokens(body: Dict[str, Any]) -> int:
