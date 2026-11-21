@@ -187,6 +187,18 @@ async def chat_completions(request: Request):
                 }
                 yield f"data: {json.dumps(first_chunk)}\n\n".encode("utf-8")
 
+                # Thinking models: tell the client we're reasoning before the
+                # first token arrives so the UI can show live status.
+                if think_mode == 0 and not official_mode:
+                    thinking_chunk = {
+                        "id": cid,
+                        "object": "chat.completion.chunk",
+                        "created": created,
+                        "model": model_name,
+                        "choices": [{"index": 0, "delta": {"thinking": True}, "finish_reason": None}],
+                    }
+                    yield f"data: {json.dumps(thinking_chunk)}\n\n".encode("utf-8")
+
                 stream_source = call_stream()
                 if official_mode and use_tools:
                     # Official tool calls arrive with the complete response.

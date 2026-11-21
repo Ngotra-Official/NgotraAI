@@ -98,6 +98,7 @@ def init_db():
         gemini_cookie_verified_at REAL DEFAULT 0.0,
         gemini_auth_user TEXT DEFAULT '',
         gemini_xsrf_token TEXT DEFAULT '',
+        plan TEXT DEFAULT 'free',
         gemini_api_key TEXT DEFAULT '',
         gemini_api_key_at REAL DEFAULT 0.0,
         gemini_oauth_access_token TEXT DEFAULT '',
@@ -109,6 +110,13 @@ def init_db():
         total_requests INTEGER DEFAULT 0,
         created_at REAL NOT NULL,
         last_login_at REAL
+    );
+
+    CREATE TABLE IF NOT EXISTS user_monthly_usage (
+        user_id INTEGER NOT NULL REFERENCES users(id) ON DELETE CASCADE,
+        month INTEGER NOT NULL,
+        used INTEGER NOT NULL DEFAULT 0,
+        PRIMARY KEY (user_id, month)
     );
 
     CREATE TABLE IF NOT EXISTS api_keys (
@@ -175,6 +183,7 @@ def init_db():
         "gemini_cookie_verified_at": "ALTER TABLE users ADD COLUMN gemini_cookie_verified_at REAL DEFAULT 0.0",
         "gemini_auth_user": "ALTER TABLE users ADD COLUMN gemini_auth_user TEXT DEFAULT ''",
         "gemini_xsrf_token": "ALTER TABLE users ADD COLUMN gemini_xsrf_token TEXT DEFAULT ''",
+        "plan": "ALTER TABLE users ADD COLUMN plan TEXT DEFAULT 'free'",
         "gemini_api_key": "ALTER TABLE users ADD COLUMN gemini_api_key TEXT DEFAULT ''",
         "gemini_api_key_at": "ALTER TABLE users ADD COLUMN gemini_api_key_at REAL DEFAULT 0.0",
         "gemini_oauth_access_token": "ALTER TABLE users ADD COLUMN gemini_oauth_access_token TEXT DEFAULT ''",

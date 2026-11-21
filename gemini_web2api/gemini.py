@@ -18,6 +18,34 @@ except ImportError:
     HAS_HTTPX = False
 
 from .config import CONFIG
+from .account_health import mark_failure, mark_success, health
+
+
+THINK_MARK = "\u2063THINK\u2063"
+
+
+def classify_error(text: str, status: int = 0) -> str:
+    """Classify an upstream response so we can cool down the right account."""
+    low = (text or "").lower()
+    if status in (429, 503) or "rate limit" in low or "rate_limit" in low or "too many requests" in low:
+        return "rate_limit"
+    if "quota" in low or "billing" in low or "resource_exhausted" in low:
+        return "quota"
+    if "sign in" in low or "unauthorized" in low or "authentication" in low or "session expired" in low:
+        return "auth"
+    if "barderrorinfo" in low:
+        return "upstream"
+    return ""
+
+
+def cool(cookie: str, reason: str) -> None:
+    if not cookie:
+        return
+    seconds = 90 if reason in ("rate_limit", "quota") else 30
+    if reason == "auth":
+        seconds = 300
+    mark_failure(cookie, reason, seconds)
+
 
 _ssl_ctx = None
 _cookie_cache = {"str": "", "sapisid": None, "mtime": 0}
@@ -336,18 +364,22 @@ def generate(prompt: str, model_id: int, think_mode: int, file_refs: list = None
             else:
                 resp = urllib.request.urlopen(req, context=ctx, timeout=CONFIG["request_timeout_sec"])
             raw = resp.read().decode("utf-8", errors="replace")
+            mark_success(cookie)
             return extract_response_text(raw)
         except Exception as e:
             last_err = e
+            reason = classify_error(str(e), getattr(e, "code", 0) or 0)
+            if reason:
+                cool(cookie, reason)
             if attempt < CONFIG["retry_attempts"] - 1:
                 log(f"Retry {attempt+1}/{CONFIG['retry_attempts']}: {e}")
-                time.sleep(CONFIG["retry_delay_sec"])
+                time.sleep(max(0.5, CONFIG["retry_delay_sec"] / (attempt + 1)))
     raise last_err
 
 
 def generate_stream(prompt: str, model_id: int, think_mode: int, file_refs: list = None,
                     extra_fields: dict = None, cookie: str = "", auth_user: str = "",
-                    xsrf_token: str = ""):
+                    xsrf_token: str = "", allow_fallback: bool = True):
     """Streaming generation via httpx with retry on connection failure."""
     if not HAS_HTTPX:
         text = generate(prompt, model_id, think_mode, file_refs, extra_fields, cookie, auth_user, xsrf_token)
@@ -365,16 +397,30 @@ def generate_stream(prompt: str, model_id: int, think_mode: int, file_refs: list
     for attempt in range(CONFIG["retry_attempts"]):
         try:
             with client.stream("POST", url, content=body, headers=headers) as resp:
-                resp.raise_for_status()
+                if resp.status_code >= 400:
+                    err_body = ""
+                    try:
+                        err_body = resp.read().decode("utf-8", errors="replace")[:2000]
+                    except Exception:
+                        pass
+                    reason = classify_error(err_body, resp.status_code)
+                    if reason:
+                        cool(cookie, reason)
+                    raise RuntimeError(f"Gemini upstream HTTP {resp.status_code}: {reason or 'error'}")
                 buf = ""
                 for chunk in resp.iter_text():
                     buf += chunk
                     if "BardErrorInfo" in buf:
                         bard_err = re.search(r'BardErrorInfo\s*\[(\d+)\]', buf)
                         if bard_err:
+                            cool(cookie, "upstream")
                             raise RuntimeError(
                                 f"Gemini upstream rejected request: BardErrorInfo [{bard_err.group(1)}]"
                             )
+                    reason = classify_error(buf[:4000])
+                    if reason in ("rate_limit", "quota", "auth"):
+                        cool(cookie, reason)
+                        raise RuntimeError(f"Gemini upstream issue: {reason}")
                     while "\n" in buf:
                         line, buf = buf.split("\n", 1)
                         texts = _extract_texts_from_line(line)
@@ -409,15 +455,37 @@ def generate_stream(prompt: str, model_id: int, think_mode: int, file_refs: list
                             if delta:
                                 yield delta
             if not emitted_raw_text:
+                cool(cookie, "empty")
                 raise RuntimeError(
                     "Gemini returned an empty response. This usually means the connected "
                     "account session needs to be refreshed — please reconnect your Gemini "
                     "account in Dashboard → Settings and try again."
                 )
+            mark_success(cookie)
             return
         except Exception as e:
             last_err = e
+            reason = classify_error(str(e))
+            if reason:
+                cool(cookie, reason)
             if attempt < CONFIG["retry_attempts"] - 1:
                 log(f"Stream retry {attempt+1}/{CONFIG['retry_attempts']}: {e}")
-                time.sleep(CONFIG["retry_delay_sec"])
+                time.sleep(max(0.5, CONFIG["retry_delay_sec"] / (attempt + 1)))
+                continue
+            # Final failure: if a shared cookie pool exists, try the next healthy
+            # cookie before giving up.
+            pool = CONFIG.get("cookie_pool") or []
+            if allow_fallback and len(pool) > 1:
+                for alt in pool:
+                    if not alt or alt == cookie or not health(alt)["ok"]:
+                        continue
+                    log("Falling back to another Gemini account from the pool")
+                    try:
+                        yield from generate_stream(prompt, model_id, think_mode, file_refs,
+                                                   extra_fields, alt, "", xsrf_token,
+                                                   allow_fallback=False)
+                        return
+                    except Exception as alt_err:
+                        log(f"Fallback account failed: {alt_err}")
+                        continue
     raise last_err

@@ -90,6 +90,32 @@ def authenticate_api_key(request: Request) -> Tuple[Dict[str, Any], Dict[str, An
     # code (token deduction, cookie lookup) must use the real user id.
     user["id"] = row["owner_id"]
 
+    # Named plan quota + per-user request rate limit.
+    from .plans import check_quota
+    from .rate_limit import is_allowed as rate_allowed, cleanup as rate_cleanup
+    quota = check_quota(int(user["id"]))
+    if not quota["allowed"]:
+        raise HTTPException(
+            status_code=status.HTTP_429_TOO_MANY_REQUESTS,
+            detail={"error": {
+                "message": quota["reason"], "type": "quota_exceeded", "code": 429,
+                "plan": quota["plan"], "monthly_limit": quota["monthly_limit"],
+                "used": quota["used"],
+            }},
+        )
+    allowed, retry = rate_allowed(int(user["id"]))
+    if not allowed:
+        raise HTTPException(
+            status_code=status.HTTP_429_TOO_MANY_REQUESTS,
+            detail={"error": {
+                "message": f"Rate limit reached on your plan. Try again in {retry}s.",
+                "type": "rate_limit", "code": 429, "retry_after": retry,
+            }},
+            headers={"Retry-After": str(retry)},
+        )
+    if int(time.time()) % 120 == 0:
+        rate_cleanup()
+
     # Strict token-based access: EVERY key (including admin/VIP) needs tokens.
     # There are no time passes and no bypasses.
     token_balance = int(user.get("token_balance", 0) or 0)
@@ -135,6 +161,15 @@ def authenticate_api_key(request: Request) -> Tuple[Dict[str, Any], Dict[str, An
     # dict (and also via ContextVar for sync callers) because contextvars set in
     # a sync helper are not guaranteed to reach an async route handler.
     user_cookie = get_user_cookie(int(user["id"]))
+    # If the user's own Gemini account is cooling down (rate-limited), use a
+    # healthy account from the shared pool so requests keep working.
+    from gemini_web2api.account_health import health, pick_healthy
+    if user_cookie and not health(user_cookie)["ok"]:
+        pool = CONFIG.get("cookie_pool") or []
+        fallback = pick_healthy(pool)
+        if fallback:
+            log(f"User {user['id']} Gemini account cooling down; using shared pool fallback")
+            user_cookie = fallback
     user["gemini_cookie_override"] = user_cookie or ""
     try:
         from .database import get_db_connection as _gdb
@@ -205,6 +240,9 @@ def record_api_usage(user_id: int, key_id: int, key_prefix: str, endpoint: str, 
     """, (tokens, tokens, user_id))
     conn.commit()
     conn.close()
+
+    from .plans import add_monthly_usage
+    add_monthly_usage(user_id, tokens)
 
 def _upload_images_safe(images: list) -> list:
     if not images:
