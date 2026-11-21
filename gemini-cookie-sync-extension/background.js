@@ -34,19 +34,31 @@ async function readBestGeminiCookies() {
     .join("; ");
 }
 
-async function connectToPlatform(origin, cookie) {
-  const res = await fetch(`${origin}/api/user/cookie`, {
-    method: "POST",
-    credentials: "include",
-    headers: { "Content-Type": "application/json" },
-    body: JSON.stringify({ cookie }),
+// Send the API call through the platform page's content script so our SameSite
+// login cookie is included. A service worker fetch cannot send that cookie.
+function connectToPlatform(tabId, cookie) {
+  return new Promise((resolve) => {
+    try {
+      chrome.tabs.sendMessage(
+        tabId,
+        { type: "ngotra-api", path: "/api/user/cookie", method: "POST", body: { cookie } },
+        (res) => {
+          if (chrome.runtime && chrome.runtime.lastError) {
+            resolve({ ok: false, message: "Reload the Ngotra tab to activate the connector." });
+          } else {
+            const data = (res && res.data) || {};
+            resolve({
+              ok: !!(res && res.ok),
+              message: data.message || (data.detail && data.detail.message) ||
+                (res && res.error) || `HTTP ${res ? res.status : 0}`,
+            });
+          }
+        }
+      );
+    } catch (e) {
+      resolve({ ok: false, message: e.message || String(e) });
+    }
   });
-  let data = {};
-  try { data = await res.json(); } catch (e) { /* ignore */ }
-  return {
-    ok: res.ok,
-    message: data.message || (data.detail && data.detail.message) || `HTTP ${res.status}`,
-  };
 }
 
 chrome.runtime.onMessage.addListener((message, sender, sendResponse) => {
@@ -63,17 +75,10 @@ chrome.runtime.onMessage.addListener((message, sender, sendResponse) => {
         });
         return;
       }
-      const origins = [message.origin, "http://localhost:8081", "https://ngotra.site"];
-      let result = { ok: false, message: "Could not reach the platform." };
-      for (const origin of origins) {
-        if (!origin) continue;
-        try {
-          result = await connectToPlatform(origin, cookie);
-          if (result.ok) break;
-        } catch (e) {
-          result = { ok: false, message: e.message || String(e) };
-        }
-      }
+      const tabId = sender.tab && sender.tab.id;
+      let result = tabId
+        ? await connectToPlatform(tabId, cookie)
+        : { ok: false, message: "Open the Ngotra website and keep it signed in." };
       // Tell the platform tab to refresh its connection status immediately.
       if (result.ok && sender.tab && sender.tab.id) {
         try {

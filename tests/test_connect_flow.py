@@ -34,20 +34,16 @@ def test_verify_endpoint_and_status():
     headers = {"Authorization": f"Bearer {reg.json()['token']}"}
 
     with mock.patch(
-        "platform_app.routes.user_routes.validate_cookie",
-        return_value={"valid": True, "state": "ok", "detail": "Connected to Gemini."},
+        "platform_app.gemini_connection.connection_state",
+        return_value={"connected": True, "valid": True, "reason": "ok"},
     ):
         status = client.get("/api/user/cookie", headers=headers)
         assert status.status_code == 200
         assert status.json()["connection"]["valid"] is True
 
-        with mock.patch(
-            "platform_app.gemini_connection.connection_state",
-            return_value={"connected": True, "valid": True, "reason": "ok"},
-        ):
-            verify = client.post("/api/user/cookie/verify", headers=headers)
-        assert verify.status_code == 200
-        assert verify.json()["connection"]["state"] == "ok"
+        verify = client.post("/api/user/cookie/verify", headers=headers)
+    assert verify.status_code == 200
+    assert verify.json()["connection"]["state"] == "ok"
 
 
 def test_live_cookie_check_states():

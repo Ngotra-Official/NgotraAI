@@ -152,25 +152,46 @@ function setDot(kind) {
   dot.className = "dot" + (kind ? " " + kind : "");
 }
 
-async function siteFetch(path, options) {
-  let last = null;
-  for (const origin of SITE_ORIGINS) {
+async function findSiteTab() {
+  const tabs = await new Promise((resolve) => {
+    chrome.tabs.query(
+      { url: ["https://ngotra.site/*", "http://localhost:8081/*"] },
+      (t) => resolve(t || [])
+    );
+  });
+  return tabs[0] || null;
+}
+
+// Call the platform through the page's content script so the SameSite login
+// cookie is included (a direct fetch from chrome-extension:// cannot send it).
+async function siteApi(path, method, body) {
+  const tab = await findSiteTab();
+  if (!tab) return { ok: false, status: 0, data: null, error: "Keep the Ngotra tab open and signed in." };
+  return new Promise((resolve) => {
     try {
-      const res = await fetch(origin + path, Object.assign({ credentials: "include" }, options || {}));
-      last = res;
-      // Only accept a successful response. A 401 from one origin must not
-      // stop us from checking the other origin where the user may be logged in.
-      if (res.ok) return res;
-    } catch (e) { /* try next origin */ }
-  }
-  return last;
+      chrome.tabs.sendMessage(
+        tab.id,
+        { type: "ngotra-api", path: path, method: method || "GET", body: body },
+        (res) => {
+          if (chrome.runtime && chrome.runtime.lastError) {
+            resolve({ ok: false, status: 0, data: null,
+              error: "Reload the Ngotra tab to activate the connector." });
+          } else {
+            resolve(res || { ok: false, status: 0, data: null, error: "No response from site." });
+          }
+        }
+      );
+    } catch (e) {
+      resolve({ ok: false, status: 0, data: null, error: e.message || String(e) });
+    }
+  });
 }
 
 async function refreshAccountPanel() {
   const emailEl = document.getElementById("account-email");
   const statusEl = document.getElementById("account-status");
   try {
-    const meRes = await siteFetch("/api/auth/me");
+    const meRes = await siteApi("/api/auth/me", "GET");
     if (!meRes || !meRes.ok) {
       emailEl.textContent = "Not signed in to Ngotra";
       statusEl.textContent = "Sign in on ngotra.site first.";
@@ -179,13 +200,13 @@ async function refreshAccountPanel() {
       setStatus("Please sign in on the Ngotra website first.", "warn");
       return;
     }
-    const me = await meRes.json();
+    const me = meRes.data || {};
     const email = (me.user && me.user.email) || "Signed in to Ngotra";
     emailEl.textContent = email;
 
-    const connRes = await siteFetch("/api/user/cookie");
+    const connRes = await siteApi("/api/user/cookie", "GET");
     if (connRes && connRes.ok) {
-      const conn = await connRes.json();
+      const conn = connRes.data || {};
       const ok = conn.connection && conn.connection.valid;
       statusEl.textContent = ok ? "Connected & verified ✓" : "Not connected";
       statusEl.className = "note " + (ok ? "ok" : "warn");
@@ -225,28 +246,13 @@ connectButton.addEventListener("click", async () => {
     }
     const cookieString = buildCookieString(info);
 
-    const origins = ["https://ngotra.site", "http://localhost:8081"];
-    let done = false;
-    let lastError = "";
-    for (const origin of origins) {
-      try {
-        const res = await fetch(origin + "/api/user/cookie", {
-          method: "POST",
-          credentials: "include",
-          headers: { "Content-Type": "application/json" },
-          body: JSON.stringify({ cookie: cookieString })
-        });
-        if (res.ok) {
-          const data = await res.json();
-          setStatus("Account connected successfully." + (data.message ? "\n" + data.message : ""), "ok");
-          await refreshAccountPanel();
-          done = true;
-          break;
-        }
-        lastError = "HTTP " + res.status;
-      } catch (e) {
-        lastError = e.message || String(e);
-      }
+    const res = await siteApi("/api/user/cookie", "POST", { cookie: cookieString });
+    let done = res.ok;
+    let lastError = res.error || ("HTTP " + res.status);
+    if (done) {
+      const data = res.data || {};
+      setStatus("Account connected successfully." + (data.message ? "\n" + data.message : ""), "ok");
+      await refreshAccountPanel();
     }
     if (!done) throw new Error("Could not connect. Sign in on the Ngotra site first, then try again.\n" + lastError);
   } catch (error) {

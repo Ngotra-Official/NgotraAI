@@ -57,7 +57,19 @@ def get_cookie_status(current_user: dict = Depends(get_current_user)):
     if not row:
         raise HTTPException(status_code=404, detail="User not found")
     data = _cookie_status(row)
-    data["connection"] = validate_cookie(get_user_cookie(current_user["id"]))
+    # Use the cached, fail-tolerant gate instead of a live Gemini call on every
+    # page load. A transient upstream failure must never "disconnect" a user.
+    from ..gemini_connection import connection_state
+    state = connection_state(current_user["id"])
+    data["connection"] = {
+        "valid": state["valid"],
+        "state": state["reason"],
+        "detail": (
+            "Connected and working." if state["valid"] else
+            "Connect your Gemini account first." if state["reason"] == "not_connected" else
+            "Connection is not working. Please reconnect."
+        ),
+    }
     return data
 
 
