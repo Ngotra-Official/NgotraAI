@@ -54,6 +54,13 @@ def _sse_chunks(text):
     return chunks
 
 
+
+def _async_chunks(chunks):
+    async def gen():
+        for c in chunks:
+            yield c
+    return gen()
+
 def test_model_aliases_are_echoed_and_routed():
     name, mode, think, err, _ = resolve_model("gemini-2.5-flash")
     assert (name, err) == ("gemini-2.5-flash", None)
@@ -81,8 +88,8 @@ def test_models_retrieve_and_real_ids():
 def test_chat_stream_forwards_realtime_deltas_and_usage():
     client, headers = _client_with_tokens()
     with mock.patch(
-        "platform_app.routes.openai_routes.generate_stream",
-        return_value=iter(["Hel", "lo", " world"]),
+        "platform_app.routes.openai_routes.astream",
+        return_value=_async_chunks(["Hel", "lo", " world"]),
     ):
         res = client.post("/v1/chat/completions", headers=headers, json={
             "model": "gemini-2.5-flash",
@@ -135,8 +142,8 @@ def test_chat_honours_stop_and_max_tokens_and_echoes_model():
 def test_responses_stream_emits_true_text_deltas():
     client, headers = _client_with_tokens()
     with mock.patch(
-        "platform_app.routes.openai_routes.generate_stream",
-        return_value=iter(["He", "llo"]),
+        "platform_app.routes.openai_routes.astream",
+        return_value=_async_chunks(["He", "llo"]),
     ):
         res = client.post("/v1/responses", headers=headers, json={
             "model": "gemini-2.5-flash",
@@ -170,8 +177,8 @@ def test_google_native_endpoints():
 
     stream_url = "/v1beta/models/gemini-2.5-flash:streamGenerateContent"
     with mock.patch(
-        "platform_app.routes.openai_routes.generate_stream",
-        return_value=iter(["stream", "ed"]),
+        "platform_app.routes.openai_routes.astream",
+        return_value=_async_chunks(["stream", "ed"]),
     ):
         res = client.post(stream_url, headers=headers, json={
             "contents": [{"role": "user", "parts": [{"text": "hi"}]}],
@@ -194,8 +201,8 @@ def test_chat_stream_emits_tool_calls_without_leaking_raw_markup():
         "\n```",
     ])
     with mock.patch(
-        "platform_app.routes.openai_routes.generate_stream",
-        return_value=pieces,
+        "platform_app.routes.openai_routes.astream",
+        return_value=_async_chunks(list(pieces)),
     ):
         res = client.post("/v1/chat/completions", headers=headers, json={
             "model": "gemini-2.5-flash",

@@ -150,8 +150,10 @@ def save_cookie(req: CookieRequest, current_user: dict = Depends(get_current_use
 @router.delete("/cookie")
 def remove_cookie(current_user: dict = Depends(get_current_user)):
     from ..gemini_connection import invalidate
+    from ..user_context import invalidate as invalidate_context
     clear_user_cookie(current_user["id"])
     invalidate(current_user["id"])
+    invalidate_context(current_user["id"])
     return {"success": True, "message": "Gemini account disconnected."}
 
 

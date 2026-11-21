@@ -23,6 +23,7 @@ from fastapi.responses import JSONResponse, StreamingResponse
 from gemini_web2api.config import CONFIG
 from gemini_web2api.models import MODELS, MODEL_ALIASES, list_model_ids, resolve_model
 from gemini_web2api.generation import generate, generate_stream
+from gemini_web2api.astream import astream
 from gemini_web2api.gemini import log
 from gemini_web2api.official import (
     generate_with_token, generate_stream_with_token, build_generation_config,
@@ -169,11 +170,22 @@ async def chat_completions(request: Request):
             )
         return generate_stream(prompt, model_id, think_mode, file_refs, extra_fields, cookie=user_cookie, auth_user=auth_user, xsrf_token=xsrf_token)
 
+    async def call_astream():
+        """Async streaming path: one connection per request, no thread pool."""
+        if official_mode:
+            for chunk in generate_stream_with_token(
+                    prompt, model_name, oauth_token, images, gen_config, tools):
+                yield chunk
+            return
+        async for chunk in astream(prompt, model_id, think_mode, file_refs,
+                                   extra_fields, user_cookie, auth_user, xsrf_token):
+            yield chunk
+
     # Real incremental streaming, including tool calls.
     if stream:
         use_tools = bool(tools) and tool_choice != "none"
 
-        def event_stream():
+        async def event_stream():
             raw_text = ""
             stable_visible = ""
             final_visible = ""
@@ -199,13 +211,19 @@ async def chat_completions(request: Request):
                     }
                     yield f"data: {json.dumps(thinking_chunk)}\n\n".encode("utf-8")
 
-                stream_source = call_stream()
                 if official_mode and use_tools:
                     # Official tool calls arrive with the complete response.
                     text, oauth_calls = call_generate()
-                    stream_source = iter([text] if text else [])
+                    stream_source = [text] if text else []
 
-                for delta in stream_source:
+                    async def _single():
+                        for chunk in stream_source:
+                            yield chunk
+                    deltas = _single()
+                else:
+                    deltas = call_astream()
+
+                async for delta in deltas:
                     if stream_exceeds_limit(raw_text + delta, body):
                         break
                     raw_text += delta
@@ -430,21 +448,26 @@ async def responses(request: Request):
     official_mode = bool(oauth_token)
     gen_config = build_generation_config(body)
 
-    if official_mode:
-        def official_gen():
+    def official_gen():
+        if official_mode:
             text, fcs, _ = generate_with_token(prompt, model_name, oauth_token, images, gen_config, tools)
             return text, fcs
-        def official_stream():
-            return generate_stream_with_token(prompt, model_name, oauth_token, images, gen_config, tools)
-    else:
-        def official_gen():
-            text, _oauth_fcs = official_gen()
-            return text, None
-        def official_stream():
-            return generate_stream(prompt, model_id, think_mode, file_refs, extra_fields, cookie=user_cookie, auth_user=auth_user, xsrf_token=xsrf_token)
+        text = generate(prompt, model_id, think_mode, file_refs, extra_fields,
+                        cookie=user_cookie, auth_user=auth_user, xsrf_token=xsrf_token)
+        return text, None
+
+    async def official_stream():
+        if official_mode:
+            for chunk in generate_stream_with_token(prompt, model_name, oauth_token,
+                                                     images, gen_config, tools):
+                yield chunk
+            return
+        async for chunk in astream(prompt, model_id, think_mode, file_refs,
+                                   extra_fields, user_cookie, auth_user, xsrf_token):
+            yield chunk
 
     if body.get("stream"):
-        def event_stream():
+        async def event_stream():
             sequence = 0
             full_text = ""
             tool_calls = None
@@ -453,36 +476,36 @@ async def responses(request: Request):
                 nonlocal sequence
                 sequence += 1
                 event = {"type": event_type, "sequence_number": sequence, **fields}
-                yield f"event: {event_type}\ndata: {json.dumps(event, ensure_ascii=False)}\n\n".encode("utf-8")
+                return f"event: {event_type}\ndata: {json.dumps(event, ensure_ascii=False)}\n\n".encode("utf-8")
 
             base = {"id": rid, "object": "response", "created_at": created, "model": model_name}
-            yield from emit("response.created", response={**base, "status": "in_progress", "output": [], "usage": None})
-            yield from emit("response.in_progress", response={**base, "status": "in_progress", "output": [], "usage": None})
+            yield emit("response.created", response={**base, "status": "in_progress", "output": [], "usage": None})
+            yield emit("response.in_progress", response={**base, "status": "in_progress", "output": [], "usage": None})
 
             if not tools or tool_choice == "none":
                 mid = f"msg_{uuid.uuid4().hex[:12]}"
                 item = {"type": "message", "id": mid, "role": "assistant", "status": "in_progress", "content": []}
-                yield from emit("response.output_item.added", output_index=0, item=item)
+                yield emit("response.output_item.added", output_index=0, item=item)
                 part = {"type": "output_text", "text": "", "annotations": []}
-                yield from emit("response.content_part.added", item_id=mid, output_index=0,
+                yield emit("response.content_part.added", item_id=mid, output_index=0,
                                 content_index=0, part=part)
                 try:
-                    for delta in official_stream():
+                    async for delta in official_stream():
                         if stream_exceeds_limit(full_text + delta, body):
                             break
                         full_text += delta
-                        yield from emit("response.output_text.delta", item_id=mid, output_index=0,
+                        yield emit("response.output_text.delta", item_id=mid, output_index=0,
                                         content_index=0, delta=delta)
                 except Exception as e:
                     log(f"Responses stream error: {e}")
                 part["text"] = full_text
-                yield from emit("response.output_text.done", item_id=mid, output_index=0,
+                yield emit("response.output_text.done", item_id=mid, output_index=0,
                                 content_index=0, text=full_text)
-                yield from emit("response.content_part.done", item_id=mid, output_index=0,
+                yield emit("response.content_part.done", item_id=mid, output_index=0,
                                 content_index=0, part=part)
                 final_item = {"type": "message", "id": mid, "role": "assistant", "status": "completed",
                               "content": [part]}
-                yield from emit("response.output_item.done", output_index=0, item=final_item)
+                yield emit("response.output_item.done", output_index=0, item=final_item)
                 output = [final_item]
             else:
                 oauth_fcs = None
@@ -503,28 +526,28 @@ async def responses(request: Request):
                         call = {"type": "function_call", "id": tc["id"], "call_id": tc["id"],
                                 "name": tc["function"]["name"], "arguments": tc["function"]["arguments"],
                                 "status": "completed"}
-                        yield from emit("response.output_item.added", output_index=index, item={**call, "arguments": "", "status": "in_progress"})
-                        yield from emit("response.function_call_arguments.delta", item_id=call["id"],
+                        yield emit("response.output_item.added", output_index=index, item={**call, "arguments": "", "status": "in_progress"})
+                        yield emit("response.function_call_arguments.delta", item_id=call["id"],
                                         output_index=index, delta=call["arguments"])
-                        yield from emit("response.function_call_arguments.done", item_id=call["id"],
+                        yield emit("response.function_call_arguments.done", item_id=call["id"],
                                         output_index=index, arguments=call["arguments"])
-                        yield from emit("response.output_item.done", output_index=index, item=call)
+                        yield emit("response.output_item.done", output_index=index, item=call)
                         output.append(call)
                         index += 1
                 if full_text or not output:
                     mid = f"msg_{uuid.uuid4().hex[:12]}"
                     part = {"type": "output_text", "text": full_text, "annotations": []}
                     final_item = {"type": "message", "id": mid, "role": "assistant", "status": "completed", "content": [part]}
-                    yield from emit("response.output_item.added", output_index=index, item={**final_item, "content": []})
-                    yield from emit("response.content_part.added", item_id=mid, output_index=index, content_index=0, part={"type": "output_text", "text": "", "annotations": []})
-                    yield from emit("response.output_text.delta", item_id=mid, output_index=index, content_index=0, delta=full_text)
-                    yield from emit("response.output_text.done", item_id=mid, output_index=index, content_index=0, text=full_text)
-                    yield from emit("response.content_part.done", item_id=mid, output_index=index, content_index=0, part=part)
-                    yield from emit("response.output_item.done", output_index=index, item=final_item)
+                    yield emit("response.output_item.added", output_index=index, item={**final_item, "content": []})
+                    yield emit("response.content_part.added", item_id=mid, output_index=index, content_index=0, part={"type": "output_text", "text": "", "annotations": []})
+                    yield emit("response.output_text.delta", item_id=mid, output_index=index, content_index=0, delta=full_text)
+                    yield emit("response.output_text.done", item_id=mid, output_index=index, content_index=0, text=full_text)
+                    yield emit("response.content_part.done", item_id=mid, output_index=index, content_index=0, part=part)
+                    yield emit("response.output_item.done", output_index=index, item=final_item)
                     output.append(final_item)
 
             usage = build_usage(prompt, full_text)
-            yield from emit("response.completed", response={**base, "status": "completed", "output": output, "usage": usage})
+            yield emit("response.completed", response={**base, "status": "completed", "output": output, "usage": usage})
 
             duration_ms = (time.time() - start_time) * 1000
             record_api_usage(user["id"], key_info["key_id"], key_info["key_prefix"],
@@ -644,6 +667,17 @@ async def google_generate(model_path: str, request: Request):
             return generate_stream_with_token(prompt, model_name, oauth_token, images, gen_config, None)
         return generate_stream(prompt, model_id, think_mode, file_refs, extra_fields, cookie=user_cookie, auth_user=auth_user, xsrf_token=xsrf_token)
 
+    async def call_astream():
+        """Async streaming path shared by all streaming endpoints."""
+        if official_mode:
+            for chunk in generate_stream_with_token(prompt, model_name, oauth_token,
+                                                     images, gen_config, None):
+                yield chunk
+            return
+        async for chunk in astream(prompt, model_id, think_mode, file_refs,
+                                   extra_fields, user_cookie, auth_user, xsrf_token):
+            yield chunk
+
     def usage_metadata(text: str) -> Dict[str, int]:
         usage = build_usage(prompt, text)
         return {
@@ -655,10 +689,10 @@ async def google_generate(model_path: str, request: Request):
     stream = "streamGenerate" in action or request.query_params.get("alt") == "sse"
 
     if stream and not has_tools:
-        def event_stream():
+        async def event_stream():
             full_text = ""
             try:
-                for delta in stream_call():
+                async for delta in call_astream():
                     if stream_exceeds_limit(full_text + delta, body):
                         break
                     full_text += delta

@@ -40,6 +40,13 @@ def balance_of(uid):
     return row["token_balance"]
 
 
+
+def _async_chunks(chunks):
+    async def gen():
+        for c in chunks:
+            yield c
+    return gen()
+
 def test_balance_decreases_after_chat_completion():
     client, key, uid = _user_with_key_and_cookie(1000)
     before = balance_of(uid)
@@ -59,8 +66,8 @@ def test_balance_decreases_after_streaming_chat():
     client, key, uid = _user_with_key_and_cookie(1000)
     before = balance_of(uid)
 
-    with mock.patch("platform_app.routes.openai_routes.generate_stream",
-                    return_value=iter(["hello", " world", "!"])):
+    with mock.patch("platform_app.routes.openai_routes.astream",
+                    return_value=_async_chunks(["hello", " world", "!"])):
         res = client.post("/v1/chat/completions", headers={"Authorization": "Bearer " + key}, json={
             "model": "gemini-2.5-flash",
             "messages": [{"role": "user", "content": "hi"}],

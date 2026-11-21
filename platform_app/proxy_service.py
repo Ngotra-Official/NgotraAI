@@ -12,7 +12,7 @@ from gemini_web2api.models import MODELS, resolve_model
 from gemini_web2api.gemini import (
     generate, generate_stream, log, request_cookie_index, request_cookie_override,
 )
-from .database import get_db_connection, get_setting, get_user_cookie, get_user_api_key
+from .database import get_db_connection, get_setting, get_user_cookie, get_user_api_key, decrypt_cookie
 from gemini_web2api.tools import (
     messages_to_prompt, 
     parse_tool_calls, 
@@ -156,55 +156,46 @@ def authenticate_api_key(request: Request) -> Tuple[Dict[str, Any], Dict[str, An
             }
         )
 
-    # A user's own connected cookie takes priority; otherwise spread users
-    # across the shared cookie pool. The cookie is carried on the returned user
-    # dict (and also via ContextVar for sync callers) because contextvars set in
-    # a sync helper are not guaranteed to reach an async route handler.
-    user_cookie = get_user_cookie(int(user["id"]))
-    # If the user's own Gemini account is cooling down (rate-limited), use a
-    # healthy account from the shared pool so requests keep working.
+    # Per-user gateway context is cached for 20s; one DB query instead of six.
+    from .user_context import get as cached_user_context
+    from .database import get_db_connection as _gdb
+
+    def _load_context(uid: int) -> dict:
+        c = _gdb()
+        r = c.execute(
+            "SELECT gemini_cookie, gemini_auth_user, gemini_xsrf_token, gemini_api_key "
+            "FROM users WHERE id = ?", (uid,)
+        ).fetchone()
+        c.close()
+        return {
+            "raw_cookie": decrypt_cookie(r["gemini_cookie"]) if r else "",
+            "auth_user": (r["gemini_auth_user"] if r else "") or "",
+            "xsrf": (r["gemini_xsrf_token"] if r else "") or "",
+            "api_key": decrypt_cookie(r["gemini_api_key"]) if r else "",
+        }
+
+    ctx = cached_user_context(int(user["id"]), _load_context)
+
+    user_cookie = ctx["raw_cookie"]
+    if not user_cookie:
+        user_cookie = CONFIG.get("cookie_pool", [])[0] if CONFIG.get("cookie_pool") else ""
     from gemini_web2api.account_health import health, pick_healthy
     if user_cookie and not health(user_cookie)["ok"]:
-        pool = CONFIG.get("cookie_pool") or []
-        fallback = pick_healthy(pool)
+        fallback = pick_healthy(CONFIG.get("cookie_pool") or [])
         if fallback:
-            log(f"User {user['id']} Gemini account cooling down; using shared pool fallback")
             user_cookie = fallback
     user["gemini_cookie_override"] = user_cookie or ""
-    try:
-        from .database import get_db_connection as _gdb
-        _c = _gdb()
-        _r = _c.execute("SELECT gemini_auth_user FROM users WHERE id = ?", (int(user["id"]),)).fetchone()
-        _c.close()
-        user["gemini_auth_user"] = (_r["gemini_auth_user"] if _r else "") or ""
-    except Exception:
-        user["gemini_auth_user"] = ""
-    try:
-        from .database import get_db_connection as _gdb
-        _c = _gdb()
-        _r = _c.execute("SELECT gemini_xsrf_token FROM users WHERE id = ?", (int(user["id"]),)).fetchone()
-        _c.close()
-        user["gemini_xsrf_token"] = (_r["gemini_xsrf_token"] if _r else "") or ""
-    except Exception:
-        user["gemini_xsrf_token"] = ""
+    user["gemini_auth_user"] = ctx["auth_user"]
+    user["gemini_xsrf_token"] = ctx["xsrf"]
+    user["gemini_api_key"] = ctx["api_key"]
 
-    # If the account index is unknown, probe Gemini once and cache the working
-    # one. Without this, a secondary-account session returns empty responses.
+    # One-time account probe; results are persisted so this is skipped.
     if user_cookie and not user["gemini_auth_user"]:
         try:
             from .auth_probe import ensure_auth_user
             user["gemini_auth_user"] = ensure_auth_user(int(user["id"]), user_cookie)
         except Exception:
             pass
-    user["gemini_api_key"] = get_user_api_key(int(user["id"])) or ""
-
-    # If the user connected their Google account via OAuth, use the official
-    # Gemini API with their access token instead of the shared web session.
-    try:
-        from .gemini_oauth import get_access_token
-        user["gemini_oauth_token"] = get_access_token(int(user["id"])) or ""
-    except Exception:
-        user["gemini_oauth_token"] = ""
     if user_cookie:
         request_cookie_override.set(user_cookie)
     else:
