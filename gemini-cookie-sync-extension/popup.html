@@ -8,11 +8,8 @@
     :root { color-scheme: light dark; }
     body {
       font-family: system-ui, -apple-system, "Segoe UI", sans-serif;
-      width: 360px;
-      margin: 0;
-      padding: 20px;
-      background: Canvas;
-      color: CanvasText;
+      width: 360px; margin: 0; padding: 20px;
+      background: Canvas; color: CanvasText;
     }
     .brand { display: flex; align-items: center; gap: 10px; margin-bottom: 16px; }
     .brand-mark {
@@ -33,6 +30,11 @@
       padding: 10px; background: color-mix(in srgb, CanvasText 7%, Canvas);
       min-height: 40px; margin-top: 12px; font-size: 12px;
     }
+    #account {
+      border-radius: 8px; padding: 10px; margin-top: 12px; font-size: 12px;
+      background: color-mix(in srgb, CanvasText 5%, Canvas);
+    }
+    .email { font-weight: 600; overflow-wrap: anywhere; }
     .ok { color: #17823b; }
     .warn { color: #b34800; }
     .note { opacity: .7; font-size: 11px; margin-top: 14px; }
@@ -43,6 +45,12 @@
     <div class="brand-mark">N</div>
     <h1>Ngotra Gemini Connector</h1>
   </div>
+
+  <div id="account">
+    <div class="email" id="account-email">Checking your site account…</div>
+    <div id="account-status" class="note">Connection status: checking…</div>
+  </div>
+
   <p>Sign in to Gemini, then verify to connect your account to Ngotra securely.</p>
   <button id="connect" type="button">Verify &amp; Connect</button>
   <p id="status">Ready.</p>

@@ -1,7 +1,5 @@
 const CORE_REQUIRED = ["SAPISID"];
 const SESSION_ALTERNATIVES = ["__Secure-1PSID", "__Secure-3PSID", "SID"];
-const LEGACY_COOKIES = ["SID", "HSID", "SSID", "APISID", "SAPISID"];
-
 const EXPORT_ORDER = [
   "SID",
   "HSID",
@@ -133,195 +131,10 @@ function validateSelection(selected) {
   };
 }
 
-function listPresent(selected, names) {
-  return names.filter((name) => selected.has(name));
-}
-
-function summarizeAvailable(cookies) {
-  return [...new Set(cookies
-    .map((cookie) => cookie.name)
-    .filter((name) => /SID|APISID|LSID|OSID|COMPASS/.test(name)))]
-    .sort();
-}
-
-function getActiveGeminiAccount(tabs) {
-  for (const tab of tabs) {
-    try {
-      const url = new URL(tab.url || "");
-      if (url.hostname !== "gemini.google.com") continue;
-      const match = url.pathname.match(/^\/u\/(\d+)(?:\/|$)/);
-      return match ? match[1] : null;
-    } catch {
-      // Ignore malformed or unavailable URLs.
-    }
-  }
-  return null;
-}
-
-function chooseGeminiTab(tabs) {
-  return tabs.find((tab) => tab.active) || tabs[0] || null;
-}
-
-async function readGeminiPageMetadata(tabs) {
-  const tab = chooseGeminiTab(tabs);
-  if (!tab?.id) {
-    return {
-      xsrfToken: null,
-      geminiBl: null,
-      source: null,
-      error: "Open gemini.google.com in a tab, sign in, then refresh the page."
-    };
-  }
-
-  try {
-    const result = await chrome.scripting.executeScript({
-      target: { tabId: tab.id },
-      world: "MAIN",
-      func: () => {
-        const wiz = globalThis.WIZ_global_data || {};
-        const html = document.documentElement?.innerHTML || "";
-
-        const decode = (value) => {
-          if (!value) return null;
-          try {
-            return JSON.parse(`"${value.replace(/"/g, '\\"')}"`);
-          } catch {
-            return value
-              .replace(/\\u003d/gi, "=")
-              .replace(/\\u0026/gi, "&")
-              .replace(/\\u003c/gi, "<")
-              .replace(/\\u003e/gi, ">");
-          }
-        };
-
-        const regexValue = (name) => {
-          const patterns = [
-            new RegExp(`"${name}"\\s*:\\s*"([^"\\n]+)"`),
-            new RegExp(`\\\\"${name}\\\\"\\s*:\\s*\\\\"([^"\\n]+)\\\\"`)
-          ];
-          for (const pattern of patterns) {
-            const match = html.match(pattern);
-            if (match?.[1]) return decode(match[1]);
-          }
-          return null;
-        };
-
-        let resourceBl = null;
-        try {
-          const resources = performance.getEntriesByType("resource");
-          for (const entry of resources) {
-            if (!entry?.name?.includes("gemini.google.com")) continue;
-            const url = new URL(entry.name);
-            const bl = url.searchParams.get("bl");
-            if (bl) {
-              resourceBl = bl;
-              break;
-            }
-          }
-        } catch {
-          // Ignore performance API failures.
-        }
-
-        const xsrfToken = wiz.SNlM0e || regexValue("SNlM0e");
-        const geminiBl = wiz.cfb2h || resourceBl || regexValue("cfb2h");
-
-        let source = null;
-        if (wiz.SNlM0e || wiz.cfb2h) source = "WIZ_global_data";
-        else if (resourceBl) source = "performance";
-        else if (xsrfToken || geminiBl) source = "page-html";
-
-        return {
-          xsrfToken: xsrfToken || null,
-          geminiBl: geminiBl || null,
-          source,
-          url: location.href
-        };
-      }
-    });
-
-    return result?.[0]?.result || {
-      xsrfToken: null,
-      geminiBl: null,
-      source: null,
-      error: "Failed to read Gemini page data."
-    };
-  } catch (error) {
-    return {
-      xsrfToken: null,
-      geminiBl: null,
-      source: null,
-      error: error?.message || String(error)
-    };
-  }
-}
-
 async function buildInspection() {
-  const [cookies, tabs] = await Promise.all([
-    readGoogleCookies(),
-    chrome.tabs.query({ url: "https://gemini.google.com/*" })
-  ]);
-
+  const cookies = await readGoogleCookies();
   const selected = selectBestCookies(cookies);
-  const validation = validateSelection(selected);
-  const legacyPresent = listPresent(selected, LEGACY_COOKIES);
-  const legacyMissing = LEGACY_COOKIES.filter((name) => !selected.has(name));
-  const available = summarizeAvailable(cookies);
-  const authUser = getActiveGeminiAccount(tabs);
-  const pageMetadata = await readGeminiPageMetadata(tabs);
-
-  return {
-    cookies,
-    selected,
-    validation,
-    legacyPresent,
-    legacyMissing,
-    available,
-    authUser,
-    pageMetadata
-  };
-}
-
-function inspectionMessage(info) {
-  const {
-    cookies,
-    selected,
-    validation,
-    legacyPresent,
-    legacyMissing,
-    available,
-    authUser,
-    pageMetadata
-  } = info;
-
-  const lines = [
-    `Found ${cookies.length} cookie(s) across Google domains.`,
-    "",
-    `SAPISID: ${selected.has("SAPISID") ? "present" : "missing"}`,
-    `Session cookie: ${validation.sessionCookie || "missing"}`,
-    `XSRF / SNlM0e: ${pageMetadata.xsrfToken ? "present" : "missing"}`,
-    `gemini_bl / cfb2h: ${pageMetadata.geminiBl ? "present" : "missing"}`,
-    `auth_user: ${authUser ?? "default account"}`,
-    `Page data source: ${pageMetadata.source || "unavailable"}`,
-    "",
-    `Legacy present: ${legacyPresent.join(", ") || "none"}`,
-    `Legacy not visible to the extension: ${legacyMissing.join(", ") || "none"}`,
-    "",
-    `Available for export: ${available.join(", ") || "none"}`
-  ];
-
-  if (pageMetadata.error) {
-    lines.push("", `Page note: ${pageMetadata.error}`);
-  }
-
-  if (validation.valid && pageMetadata.xsrfToken) {
-    lines.push("", "Session and XSRF are ready for export.");
-  } else if (validation.valid) {
-    lines.push("", "Cookies are ready, but XSRF is missing. Open Gemini, refresh the page, then inspect again.");
-  } else {
-    lines.push("", "Session is incomplete: SAPISID and one of __Secure-1PSID, __Secure-3PSID, or SID are required.");
-  }
-
-  return lines.join("\n");
+  return { selected, validation: validateSelection(selected) };
 }
 
 function buildCookieString(info) {
@@ -331,21 +144,50 @@ function buildCookieString(info) {
     .join("; ");
 }
 
-async function downloadJson(filename, payload) {
-  const blob = new Blob([JSON.stringify(payload, null, 2) + "\n"], {
-    type: "application/json;charset=utf-8"
-  });
-  const url = URL.createObjectURL(blob);
+const SITE_ORIGINS = ["https://ngotra.site", "http://localhost:8081"];
 
-  await chrome.downloads.download({
-    url,
-    filename,
-    saveAs: true,
-    conflictAction: "uniquify"
-  });
-
-  setTimeout(() => URL.revokeObjectURL(url), 30000);
+async function siteFetch(path, options) {
+  for (const origin of SITE_ORIGINS) {
+    try {
+      const res = await fetch(origin + path, Object.assign({ credentials: "include" }, options || {}));
+      return res;
+    } catch (e) { /* try next origin */ }
+  }
+  return null;
 }
+
+async function refreshAccountPanel() {
+  const emailEl = document.getElementById("account-email");
+  const statusEl = document.getElementById("account-status");
+  try {
+    const meRes = await siteFetch("/api/auth/me");
+    if (!meRes || !meRes.ok) {
+      emailEl.textContent = "Not signed in to Ngotra";
+      statusEl.textContent = "Sign in on ngotra.site first.";
+      statusEl.className = "note warn";
+      return;
+    }
+    const me = await meRes.json();
+    emailEl.textContent = (me.user && me.user.email) || "Signed in to Ngotra";
+
+    const connRes = await siteFetch("/api/user/cookie");
+    if (connRes && connRes.ok) {
+      const conn = await connRes.json();
+      const ok = conn.connection && conn.connection.valid;
+      statusEl.textContent = "Connection status: " + (ok ? "Connected ✓" : "Not connected");
+      statusEl.className = "note " + (ok ? "ok" : "warn");
+    } else {
+      statusEl.textContent = "Connection status: unavailable";
+      statusEl.className = "note warn";
+    }
+  } catch (e) {
+    emailEl.textContent = "Ngotra site unavailable";
+    statusEl.textContent = "Open ngotra.site and sign in.";
+    statusEl.className = "note warn";
+  }
+}
+
+refreshAccountPanel();
 
 connectButton.addEventListener("click", async () => {
   connectButton.disabled = true;
@@ -373,6 +215,7 @@ connectButton.addEventListener("click", async () => {
         if (res.ok) {
           const data = await res.json();
           setStatus("Account connected successfully." + (data.message ? "\n" + data.message : ""), "ok");
+          await refreshAccountPanel();
           done = true;
           break;
         }
@@ -389,56 +232,3 @@ connectButton.addEventListener("click", async () => {
   }
 });
 
-inspectButton.addEventListener("click", async () => {
-  inspectButton.disabled = true;
-  setStatus("Inspecting session and page data…");
-
-  try {
-    const info = await buildInspection();
-    const ready = info.validation.valid && Boolean(info.pageMetadata.xsrfToken);
-    setStatus(inspectionMessage(info), ready ? "ok" : "warn");
-  } catch (error) {
-    setStatus(error?.message || String(error), "warn");
-  } finally {
-    inspectButton.disabled = false;
-  }
-});
-
-exportButton.addEventListener("click", async () => {
-  exportButton.disabled = true;
-  setStatus("Reading cookies and XSRF…");
-
-  try {
-    const info = await buildInspection();
-
-    if (!info.validation.valid || !info.pageMetadata.xsrfToken) {
-      throw new Error(inspectionMessage(info));
-    }
-
-    const cookieString = buildCookieString(info);
-    const payload = {
-      cookie: cookieString,
-      sapisid: info.selected.get("SAPISID").value,
-      auth_user: info.authUser,
-      xsrf_token: info.pageMetadata.xsrfToken,
-      gemini_bl: info.pageMetadata.geminiBl
-    };
-
-    await downloadJson("gemini-auth.json", payload);
-
-    const exportedNames = EXPORT_ORDER.filter((name) => info.selected.has(name));
-    setStatus(
-      `Created gemini-auth.json with ${exportedNames.length} cookie(s) and XSRF.\n\n` +
-      `Session cookie: ${info.validation.sessionCookie}\n` +
-      `XSRF: present\n` +
-      `gemini_bl: ${info.pageMetadata.geminiBl ? "present" : "not present — current server setting will remain"}\n` +
-      `auth_user: ${info.authUser ?? "null"}\n\n` +
-      "Move the file into gemini-web2api and do not share it or commit it to Git.",
-      "ok"
-    );
-  } catch (error) {
-    setStatus(error?.message || String(error), "warn");
-  } finally {
-    exportButton.disabled = false;
-  }
-});
