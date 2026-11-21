@@ -12,4 +12,11 @@ document.addEventListener("ngotra-connect-request", () => {
   );
 });
 
+// Let the page know a connection was just completed so it can refresh status.
+chrome.runtime.onMessage.addListener((message) => {
+  if (message && message.type === "ngotra-connected") {
+    document.dispatchEvent(new CustomEvent("ngotra-connected"));
+  }
+});
+
 document.dispatchEvent(new CustomEvent("ngotra-connector-ready"));

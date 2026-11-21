@@ -74,6 +74,12 @@ chrome.runtime.onMessage.addListener((message, sender, sendResponse) => {
           result = { ok: false, message: e.message || String(e) };
         }
       }
+      // Tell the platform tab to refresh its connection status immediately.
+      if (result.ok && sender.tab && sender.tab.id) {
+        try {
+          chrome.tabs.sendMessage(sender.tab.id, { type: "ngotra-connected" });
+        } catch (e) { /* tab may have closed */ }
+      }
       sendResponse(result);
     } catch (e) {
       sendResponse({ ok: false, message: e.message || String(e) });

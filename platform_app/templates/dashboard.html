@@ -642,6 +642,7 @@ for chunk in response:
                 <p class="text-xs font-medium text-slate-800 mb-2">Step 2 — Verify your account</p>
                 <p class="text-[11px] text-slate-500 mb-3 leading-relaxed">Sign in at <a href="https://gemini.google.com/app" target="_blank" class="text-slate-900 underline">gemini.google.com</a>, then click below.</p>
                 <button id="gemini-connect-btn" onclick="connectGemini()" class="px-4 py-2 text-xs font-medium text-white bg-slate-900 hover:bg-slate-800 rounded-md transition">Verify &amp; Connect</button>
+                <button onclick="refreshConnectionStatus()" class="px-3 py-2 text-xs font-medium text-slate-600 bg-white border border-slate-200 hover:bg-slate-50 rounded-md transition">Refresh status</button>
                 <span id="connector-status" class="ml-2 text-[11px] text-slate-400">Checking connector…</span>
               </div>
             </div>
@@ -1559,7 +1560,7 @@ for chunk in response:
         status.className = 'ml-2 text-[11px] text-emerald-600';
         btn.classList.remove('hidden');
       } else {
-        status.innerText = 'Connector not installed';
+        status.innerHTML = 'Connector not installed — <button onclick="location.reload()" class="underline hover:text-slate-700">reload page</button> after installing';
         status.className = 'ml-2 text-[11px] text-slate-400';
         btn.classList.add('hidden');
       }
@@ -1568,6 +1569,31 @@ for chunk in response:
     document.addEventListener('ngotra-connector-ready', () => {
       connectorReady = true;
       updateConnectorUI();
+    });
+
+    // The extension may be installed while this page is already open.
+    // Refresh detection and connection status whenever the user returns.
+    window.addEventListener('focus', () => {
+      connectorReady = !!window.__NGOTRA_GEMINI_CONNECTOR__;
+      updateConnectorUI();
+      fetchGeminiConnection();
+    });
+    document.addEventListener('visibilitychange', () => {
+      if (!document.hidden) {
+        connectorReady = !!window.__NGOTRA_GEMINI_CONNECTOR__;
+        updateConnectorUI();
+        fetchGeminiConnection();
+      }
+    });
+
+    // Extension reports a completed connection -> refresh immediately.
+    document.addEventListener('ngotra-connected', async () => {
+      connectorReady = true;
+      updateConnectorUI();
+      await fetchGeminiConnection();
+      showAppMessage('Your Gemini account is connected and verified.', 'Account connected', {
+        subtitle: 'Success', tone: 'success', icon: 'check-circle',
+      });
     });
 
     document.addEventListener('ngotra-connect-result', async (e) => {
@@ -1582,6 +1608,15 @@ for chunk in response:
         );
       }
     });
+
+    async function refreshConnectionStatus() {
+      connectorReady = !!window.__NGOTRA_GEMINI_CONNECTOR__;
+      updateConnectorUI();
+      await fetchGeminiConnection();
+      showAppMessage('Connection status refreshed.', 'Status', {
+        subtitle: 'Ngotra AI', tone: 'success', icon: 'refresh-cw',
+      });
+    }
 
     function connectGemini() {
       const btn = document.getElementById('gemini-connect-btn');
