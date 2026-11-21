@@ -7,10 +7,7 @@ from pydantic import BaseModel
 from ..database import (
     get_db_connection,
     set_user_cookie, get_user_cookie, clear_user_cookie,
-    set_user_api_key, get_user_api_key, clear_user_api_key,
 )
-from gemini_web2api.gemini import validate_cookie
-from gemini_web2api.official import verify_key
 from ..auth import get_current_user, get_password_hash, verify_password
 from ..unlock_service import get_user_access_status
 
@@ -26,9 +23,6 @@ class ChangePasswordRequest(BaseModel):
 class CookieRequest(BaseModel):
     cookie: str
     auth_user: str = ""
-
-class ApiKeyRequest(BaseModel):
-    api_key: str
 
 
 def _cookie_status(user_row) -> dict:
@@ -74,6 +68,26 @@ def get_cookie_status(current_user: dict = Depends(get_current_user)):
     return data
 
 
+@router.post("/cookie")
+def save_cookie(req: CookieRequest, current_user: dict = Depends(get_current_user)):
+    """Store a Gemini web-session cookie supplied by the browser connector."""
+    cookie = (req.cookie or "").strip()
+    lowered = cookie.lower()
+    if not cookie or "=" not in cookie or not any(
+        k in lowered for k in ("sapisid", "1psid", "3psid", "sid=", "hsid", "ssid")
+    ):
+        raise HTTPException(status_code=400, detail="Invalid cookie format.")
+    set_user_cookie(current_user["id"], cookie, auth_user=req.auth_user)
+    return {"connected": True, "message": "Gemini account cookie saved."}
+
+
+@router.delete("/cookie")
+def remove_cookie(current_user: dict = Depends(get_current_user)):
+    """Disconnect the Gemini account by removing the stored cookie."""
+    clear_user_cookie(current_user["id"])
+    return {"connected": False}
+
+
 @router.post("/cookie/verify")
 def verify_cookie(current_user: dict = Depends(get_current_user)):
     """Re-check the stored Gemini cookie right now."""
@@ -88,73 +102,6 @@ def verify_cookie(current_user: dict = Depends(get_current_user)):
         ),
     }
     return {"connection": result}
-
-
-def _api_key_status(user_id: int) -> dict:
-    key = get_user_api_key(user_id)
-    return {
-        "connected": bool(key),
-        "key_prefix": (key[:8] + "…" + key[-4:]) if len(key) > 14 else "",
-    }
-
-
-@router.get("/gemini-key")
-def get_gemini_key_status(current_user: dict = Depends(get_current_user)):
-    data = _api_key_status(current_user["id"])
-    if data["connected"]:
-        data["connection"] = verify_key(get_user_api_key(current_user["id"]))
-    return data
-
-
-@router.post("/gemini-key")
-def save_gemini_key(req: ApiKeyRequest, current_user: dict = Depends(get_current_user)):
-    key = (req.api_key or "").strip()
-    result = verify_key(key)
-    if not result["valid"]:
-        raise HTTPException(status_code=400, detail=result["detail"])
-    set_user_api_key(current_user["id"], key)
-    return {"success": True, "message": "Gemini account connected and verified.", "connection": result}
-
-
-@router.post("/gemini-key/verify")
-def verify_gemini_key(current_user: dict = Depends(get_current_user)):
-    return {"connection": verify_key(get_user_api_key(current_user["id"]))}
-
-
-@router.delete("/gemini-key")
-def remove_gemini_key(current_user: dict = Depends(get_current_user)):
-    clear_user_api_key(current_user["id"])
-    return {"success": True, "message": "Gemini account disconnected."}
-
-
-@router.post("/cookie")
-def save_cookie(req: CookieRequest, current_user: dict = Depends(get_current_user)):
-    cookie = (req.cookie or "").strip()
-    if not cookie:
-        raise HTTPException(status_code=400, detail="Cookie is empty")
-    if len(cookie) > 20000:
-        raise HTTPException(status_code=400, detail="Cookie is too large")
-    if "SAPISID" not in cookie and "__Secure-1PSID" not in cookie:
-        raise HTTPException(status_code=400, detail="Cookie must include SAPISID or __Secure-1PSID")
-    result = validate_cookie(cookie, req.auth_user)
-    if not result["valid"]:
-        raise HTTPException(status_code=400, detail=result["detail"])
-    from ..gemini_connection import invalidate
-    auth_user = req.auth_user or result.get("auth_user", "")
-    xsrf = result.get("xsrf_token", "")
-    set_user_cookie(current_user["id"], cookie, verified=True, auth_user=auth_user, xsrf_token=xsrf)
-    invalidate(current_user["id"])
-    return {"success": True, "message": "Gemini account verified. Your API key now uses your own account."}
-
-
-@router.delete("/cookie")
-def remove_cookie(current_user: dict = Depends(get_current_user)):
-    from ..gemini_connection import invalidate
-    from ..user_context import invalidate as invalidate_context
-    clear_user_cookie(current_user["id"])
-    invalidate(current_user["id"])
-    invalidate_context(current_user["id"])
-    return {"success": True, "message": "Gemini account disconnected."}
 
 
 @router.get("/keys")

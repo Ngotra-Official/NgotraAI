@@ -100,13 +100,6 @@ def init_db():
         gemini_xsrf_token TEXT DEFAULT '',
         gemini_auth_checked INTEGER DEFAULT 0,
         plan TEXT DEFAULT 'free',
-        gemini_api_key TEXT DEFAULT '',
-        gemini_api_key_at REAL DEFAULT 0.0,
-        gemini_oauth_access_token TEXT DEFAULT '',
-        gemini_oauth_refresh_token TEXT DEFAULT '',
-        gemini_oauth_expiry REAL DEFAULT 0.0,
-        gemini_oauth_email TEXT DEFAULT '',
-        gemini_oauth_state TEXT DEFAULT '',
         total_ads_watched INTEGER DEFAULT 0,
         total_requests INTEGER DEFAULT 0,
         created_at REAL NOT NULL,
@@ -186,13 +179,6 @@ def init_db():
         "gemini_xsrf_token": "ALTER TABLE users ADD COLUMN gemini_xsrf_token TEXT DEFAULT ''",
         "gemini_auth_checked": "ALTER TABLE users ADD COLUMN gemini_auth_checked INTEGER DEFAULT 0",
         "plan": "ALTER TABLE users ADD COLUMN plan TEXT DEFAULT 'free'",
-        "gemini_api_key": "ALTER TABLE users ADD COLUMN gemini_api_key TEXT DEFAULT ''",
-        "gemini_api_key_at": "ALTER TABLE users ADD COLUMN gemini_api_key_at REAL DEFAULT 0.0",
-        "gemini_oauth_access_token": "ALTER TABLE users ADD COLUMN gemini_oauth_access_token TEXT DEFAULT ''",
-        "gemini_oauth_refresh_token": "ALTER TABLE users ADD COLUMN gemini_oauth_refresh_token TEXT DEFAULT ''",
-        "gemini_oauth_expiry": "ALTER TABLE users ADD COLUMN gemini_oauth_expiry REAL DEFAULT 0.0",
-        "gemini_oauth_email": "ALTER TABLE users ADD COLUMN gemini_oauth_email TEXT DEFAULT ''",
-        "gemini_oauth_state": "ALTER TABLE users ADD COLUMN gemini_oauth_state TEXT DEFAULT ''",
     }
     for column_name, alter_sql in token_columns.items():
         if column_name not in existing_columns:
@@ -236,8 +222,6 @@ def init_db():
         "gemini_bl": "boq_assistant-bard-web-server_20260716.08_p0",
         "gemini_cookie": "",
         "gemini_proxy": "",
-        "google_client_id": "",
-        "google_client_secret": "",
         "default_model": "gemini-3.7-flash",
         "social_discord": "https://discord.gg/ngotra",
         "social_telegram": "https://t.me/ngotra_ai",
@@ -315,7 +299,8 @@ def mark_cookie_verified(user_id: int, verified: bool = True) -> None:
     conn.close()
 
 
-def set_user_cookie(user_id: int, cookie: str, verified: bool = False, auth_user: str = "", xsrf_token: str = "") -> float:
+def set_user_cookie(user_id: int, cookie: str, verified: bool = False,
+                    auth_user: str = "", xsrf_token: str = "") -> float:
     """Store an encrypted Gemini cookie for a user. Returns update timestamp."""
     now = time.time()
     conn = get_db_connection()
@@ -341,71 +326,6 @@ def get_user_cookie(user_id: int) -> str:
     return decrypt_cookie(row["gemini_cookie"]) if row else ""
 
 
-def set_user_oauth(user_id: int, access_token: str, refresh_token: str,
-                   expires_in: int, email: str = "") -> None:
-    conn = get_db_connection()
-    conn.execute("""
-        UPDATE users
-        SET gemini_oauth_access_token = ?, gemini_oauth_refresh_token = ?,
-            gemini_oauth_expiry = ?, gemini_oauth_email = ?, gemini_oauth_state = ''
-        WHERE id = ?
-    """, (
-        encrypt_cookie(access_token),
-        encrypt_cookie(refresh_token) if refresh_token else "",
-        time.time() + max(0, int(expires_in) - 60),
-        email or "",
-        user_id,
-    ))
-    conn.commit()
-    conn.close()
-
-
-def set_oauth_state(user_id: int, state: str) -> None:
-    conn = get_db_connection()
-    conn.execute("UPDATE users SET gemini_oauth_state = ? WHERE id = ?", (state, user_id))
-    conn.commit()
-    conn.close()
-
-
-def clear_user_oauth(user_id: int) -> None:
-    conn = get_db_connection()
-    conn.execute("""
-        UPDATE users SET gemini_oauth_access_token = '', gemini_oauth_refresh_token = '',
-            gemini_oauth_expiry = 0, gemini_oauth_email = '', gemini_oauth_state = ''
-        WHERE id = ?
-    """, (user_id,))
-    conn.commit()
-    conn.close()
-
-
-def set_user_api_key(user_id: int, key: str) -> float:
-    now = time.time()
-    conn = get_db_connection()
-    conn.execute(
-        "UPDATE users SET gemini_api_key = ?, gemini_api_key_at = ? WHERE id = ?",
-        (encrypt_cookie(key.strip()), now, user_id),
-    )
-    conn.commit()
-    conn.close()
-    return now
-
-
-def get_user_api_key(user_id: int) -> str:
-    conn = get_db_connection()
-    row = conn.execute("SELECT gemini_api_key FROM users WHERE id = ?", (user_id,)).fetchone()
-    conn.close()
-    return decrypt_cookie(row["gemini_api_key"]) if row else ""
-
-
-def clear_user_api_key(user_id: int) -> None:
-    conn = get_db_connection()
-    conn.execute(
-        "UPDATE users SET gemini_api_key = '', gemini_api_key_at = 0 WHERE id = ?", (user_id,)
-    )
-    conn.commit()
-    conn.close()
-
-
 def clear_user_cookie(user_id: int) -> None:
     conn = get_db_connection()
     conn.execute(
@@ -416,7 +336,3 @@ def clear_user_cookie(user_id: int) -> None:
     )
     conn.commit()
     conn.close()
-
-
-# Auto-initialize database schema and defaults
-init_db()

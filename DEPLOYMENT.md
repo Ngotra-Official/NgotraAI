@@ -174,9 +174,8 @@ If `ngotra.site` is behind Cloudflare:
    - **Change this password immediately** in Dashboard → Settings.
 
 2. Admin → Gemini Engine:
-   - Set **Site Domain** to `ngotra.site` (this fixes links in API error messages and the OAuth redirect URI preview).
+   - Set **Site Domain** to `ngotra.site` (this fixes links in API error messages).
    - Paste your Gemini web cookie(s), one per line, as the shared pool.
-   - Optionally configure Google OAuth Client ID/Secret if you enable Connect Gemini Account.
 
 3. Admin → Monetization:
    - Add Adsterra direct links, banners, and verify the ad count / token reward / cooldown.

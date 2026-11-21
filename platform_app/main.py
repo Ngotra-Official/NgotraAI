@@ -21,7 +21,6 @@ from .routes import (
     admin_routes,
     openai_routes,
     public_routes,
-    gemini_oauth_routes,
 )
 
 BASE_DIR = os.path.abspath(os.path.join(os.path.dirname(__file__), ".."))
@@ -213,7 +212,6 @@ app.include_router(user_routes.router)
 app.include_router(unlock_routes.router)
 app.include_router(admin_routes.router)
 app.include_router(openai_routes.router)
-app.include_router(gemini_oauth_routes.router)
 
 # Mount Static if exists
 if os.path.exists(STATIC_DIR):

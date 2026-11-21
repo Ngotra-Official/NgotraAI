@@ -79,20 +79,10 @@ Access `/admin` with the admin credentials:
 3. **Gemini Engine & Domain Settings**:
    - Configure Gemini cookies directly from UI (no file editing required). Paste one cookie per line to build a pool; users are assigned consistently to one account so load is spread out.
 
-### Connect Gemini Account (Google OAuth)
+### Connect Gemini Account (browser connector)
 
-Users click **Connect with Google** in Dashboard → Settings. This is a normal Google sign-in popup — like connecting YouTube or Discord. No cookies, extensions, or technical steps for the user. Once connected, their API key uses the **official Gemini API** with their own Google account; tokens are encrypted at rest and refreshed automatically. Live connection status and disconnect are available in the same card.
+Users sign in to Gemini in their own browser and connect with the free **Ngotra Gemini Connector** browser extension. The connector shares only their Gemini web-session cookie with the site; it is stored encrypted and never exposed to other users. A verified connection is required before API keys can be created or API requests accepted. Live connection status, re-verification, and disconnect are available in Dashboard → Settings.
 
-**One-time setup (site owner):**
-1. Create a Google Cloud project and enable the **Generative Language API**.
-2. Configure the OAuth consent screen (add test users while in Testing).
-3. Create an **OAuth client ID** of type **Web application**.
-4. Add the authorized redirect URI shown in Admin → Gemini Engine (e.g. `https://ngotra.site/api/auth/gemini/callback`).
-5. Paste the Client ID and Client Secret into Admin → Gemini Engine and save.
-
-If not configured, the connect button shows a friendly "not set up yet" message instead of failing.
-
-> The OAuth scopes requested are `generative-language`, `userinfo.email`, and `openid`. Google may require verification of sensitive scopes before public use.
    - Set proxy URL, default model, and backend BL version.
    - Changes take effect immediately without restarting the server!
 4. **User Management**:

@@ -25,9 +25,6 @@ from gemini_web2api.models import MODELS, MODEL_ALIASES, list_model_ids, resolve
 from gemini_web2api.generation import generate, generate_stream
 from gemini_web2api.astream import astream
 from gemini_web2api.gemini import log
-from gemini_web2api.official import (
-    generate_with_token, generate_stream_with_token, build_generation_config,
-)
 from gemini_web2api.tools import (
     messages_to_prompt,
     parse_tool_calls,
@@ -144,19 +141,11 @@ async def chat_completions(request: Request):
     def usage_for(text: str) -> Dict[str, int]:
         return build_usage(prompt, text)
 
-    oauth_token = user.get("gemini_oauth_token", "")
     auth_user = user.get("gemini_auth_user", "")
     xsrf_token = user.get("gemini_xsrf_token", "")
-    official_mode = bool(oauth_token)
-    gen_config = build_generation_config(body)
 
     def call_generate():
         """Return (text, tool_calls) from the appropriate backend."""
-        if official_mode:
-            text, fcs, _ = generate_with_token(
-                prompt, model_name, oauth_token, images, gen_config, tools
-            )
-            return text, fcs or None
         text = generate(prompt, model_id, think_mode, file_refs, extra_fields, cookie=user_cookie, auth_user=auth_user, xsrf_token=xsrf_token)
         if tools and text and tool_choice != "none":
             text, parsed = parse_tool_calls(text)
@@ -164,19 +153,10 @@ async def chat_completions(request: Request):
         return text, None
 
     def call_stream():
-        if official_mode:
-            return generate_stream_with_token(
-                prompt, model_name, oauth_token, images, gen_config, tools
-            )
         return generate_stream(prompt, model_id, think_mode, file_refs, extra_fields, cookie=user_cookie, auth_user=auth_user, xsrf_token=xsrf_token)
 
     async def call_astream():
         """Async streaming path: one connection per request, no thread pool."""
-        if official_mode:
-            for chunk in generate_stream_with_token(
-                    prompt, model_name, oauth_token, images, gen_config, tools):
-                yield chunk
-            return
         async for chunk in astream(prompt, model_id, think_mode, file_refs,
                                    extra_fields, user_cookie, auth_user, xsrf_token):
             yield chunk
@@ -201,7 +181,7 @@ async def chat_completions(request: Request):
 
                 # Thinking models: tell the client we're reasoning before the
                 # first token arrives so the UI can show live status.
-                if think_mode == 0 and not official_mode:
+                if think_mode == 0:
                     thinking_chunk = {
                         "id": cid,
                         "object": "chat.completion.chunk",
@@ -211,17 +191,7 @@ async def chat_completions(request: Request):
                     }
                     yield f"data: {json.dumps(thinking_chunk)}\n\n".encode("utf-8")
 
-                if official_mode and use_tools:
-                    # Official tool calls arrive with the complete response.
-                    text, oauth_calls = call_generate()
-                    stream_source = [text] if text else []
-
-                    async def _single():
-                        for chunk in stream_source:
-                            yield chunk
-                    deltas = _single()
-                else:
-                    deltas = call_astream()
+                deltas = call_astream()
 
                 async for delta in deltas:
                     if stream_exceeds_limit(raw_text + delta, body):
@@ -260,10 +230,7 @@ async def chat_completions(request: Request):
                         }
                         yield f"data: {json.dumps(chunk, ensure_ascii=False)}\n\n".encode("utf-8")
 
-                    if official_mode:
-                        tool_calls = oauth_calls or []
-                    else:
-                        _, tool_calls = parse_tool_calls(raw_text)
+                    _, tool_calls = parse_tool_calls(raw_text)
                     for index, tc in enumerate(tool_calls):
                         start_chunk = {
                             "id": cid,
@@ -346,7 +313,7 @@ async def chat_completions(request: Request):
         raise HTTPException(status_code=502, detail={"error": {"message": f"Upstream error: {e}", "type": "upstream_error"}})
 
     text = clip_text(text, body)
-    if not official_mode and tools and text and tool_choice != "none":
+    if tools and text and tool_choice != "none":
         text, tool_calls = parse_tool_calls(text)
 
     msg: Dict[str, Any] = {"role": "assistant", "content": text or None}
@@ -442,26 +409,15 @@ async def responses(request: Request):
     rid = f"resp_{uuid.uuid4().hex[:16]}"
     created = int(time.time())
 
-    oauth_token = user.get("gemini_oauth_token", "")
     auth_user = user.get("gemini_auth_user", "")
     xsrf_token = user.get("gemini_xsrf_token", "")
-    official_mode = bool(oauth_token)
-    gen_config = build_generation_config(body)
 
-    def official_gen():
-        if official_mode:
-            text, fcs, _ = generate_with_token(prompt, model_name, oauth_token, images, gen_config, tools)
-            return text, fcs
+    def gen_text():
         text = generate(prompt, model_id, think_mode, file_refs, extra_fields,
                         cookie=user_cookie, auth_user=auth_user, xsrf_token=xsrf_token)
         return text, None
 
-    async def official_stream():
-        if official_mode:
-            for chunk in generate_stream_with_token(prompt, model_name, oauth_token,
-                                                     images, gen_config, tools):
-                yield chunk
-            return
+    async def stream_text():
         async for chunk in astream(prompt, model_id, think_mode, file_refs,
                                    extra_fields, user_cookie, auth_user, xsrf_token):
             yield chunk
@@ -490,7 +446,7 @@ async def responses(request: Request):
                 yield emit("response.content_part.added", item_id=mid, output_index=0,
                                 content_index=0, part=part)
                 try:
-                    async for delta in official_stream():
+                    async for delta in stream_text():
                         if stream_exceeds_limit(full_text + delta, body):
                             break
                         full_text += delta
@@ -508,17 +464,14 @@ async def responses(request: Request):
                 yield emit("response.output_item.done", output_index=0, item=final_item)
                 output = [final_item]
             else:
-                oauth_fcs = None
+                tool_fcs = None
                 try:
-                    text, oauth_fcs = official_gen()
+                    text, tool_fcs = gen_text()
                 except Exception as e:
                     text = ""
                     log(f"Responses upstream error: {e}")
                 text = clip_text(text, body)
-                if official_mode:
-                    full_text, tool_calls = text, (oauth_fcs or None)
-                else:
-                    full_text, tool_calls = parse_tool_calls(text) if text else ("", None)
+                full_text, tool_calls = parse_tool_calls(text) if text else ("", None)
                 output = []
                 index = 0
                 if tool_calls:
@@ -559,7 +512,7 @@ async def responses(request: Request):
 
     # Non-streaming responses
     try:
-        text, oauth_fcs = official_gen()
+        text, tool_fcs = gen_text()
     except Exception as e:
         duration_ms = (time.time() - start_time) * 1000
         record_api_usage(user["id"], key_info["key_id"], key_info["key_prefix"],
@@ -567,8 +520,8 @@ async def responses(request: Request):
         raise HTTPException(status_code=502, detail={"error": {"message": f"Upstream AI error: {e}", "type": "upstream_error"}})
 
     text = clip_text(text, body)
-    tool_calls = oauth_fcs if official_mode else None
-    if not official_mode and tools and text and tool_choice != "none":
+    tool_calls = None
+    if tools and text and tool_choice != "none":
         text, tool_calls = parse_tool_calls(text)
 
     output = []
@@ -642,38 +595,22 @@ async def google_generate(model_path: str, request: Request):
     if not prompt.strip():
         raise HTTPException(status_code=400, detail={"error": {"message": "empty content"}})
 
-    oauth_token = user.get("gemini_oauth_token", "")
     auth_user = user.get("gemini_auth_user", "")
     xsrf_token = user.get("gemini_xsrf_token", "")
-    official_mode = bool(oauth_token)
-    gen_config = build_generation_config(body)
 
-    if not official_mode:
-        try:
-            file_refs = _upload_images_safe(images)
-        except RuntimeError as e:
-            raise HTTPException(status_code=502, detail={"error": {"message": f"upstream error: {e}"}})
-    else:
-        file_refs = None
+    try:
+        file_refs = _upload_images_safe(images)
+    except RuntimeError as e:
+        raise HTTPException(status_code=502, detail={"error": {"message": f"upstream error: {e}"}})
 
     def gen_call():
-        if official_mode:
-            text, fcs, _ = generate_with_token(prompt, model_name, oauth_token, images, gen_config, None)
-            return text, fcs
         return generate(prompt, model_id, think_mode, file_refs, extra_fields, cookie=user_cookie, auth_user=auth_user, xsrf_token=xsrf_token), None
 
     def stream_call():
-        if official_mode:
-            return generate_stream_with_token(prompt, model_name, oauth_token, images, gen_config, None)
         return generate_stream(prompt, model_id, think_mode, file_refs, extra_fields, cookie=user_cookie, auth_user=auth_user, xsrf_token=xsrf_token)
 
     async def call_astream():
         """Async streaming path shared by all streaming endpoints."""
-        if official_mode:
-            for chunk in generate_stream_with_token(prompt, model_name, oauth_token,
-                                                     images, gen_config, None):
-                yield chunk
-            return
         async for chunk in astream(prompt, model_id, think_mode, file_refs,
                                    extra_fields, user_cookie, auth_user, xsrf_token):
             yield chunk
@@ -719,7 +656,7 @@ async def google_generate(model_path: str, request: Request):
                                  headers={"Cache-Control": "no-cache", "X-Accel-Buffering": "no"})
 
     try:
-        text, oauth_fcs = gen_call()
+        text, tool_fcs = gen_call()
     except Exception as e:
         duration_ms = (time.time() - start_time) * 1000
         record_api_usage(user["id"], key_info["key_id"], key_info["key_prefix"],
@@ -728,8 +665,8 @@ async def google_generate(model_path: str, request: Request):
 
     text = clip_text(text, body)
     parts = []
-    if official_mode and oauth_fcs:
-        for fc in oauth_fcs:
+    if tool_fcs:
+        for fc in tool_fcs:
             parts.append({"functionCall": {
                 "name": fc["name"],
                 "args": json.loads(fc["arguments"]) if fc.get("arguments") else {},

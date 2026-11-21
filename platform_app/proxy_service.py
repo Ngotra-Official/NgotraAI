@@ -12,7 +12,7 @@ from gemini_web2api.models import MODELS, resolve_model
 from gemini_web2api.gemini import (
     generate, generate_stream, log, request_cookie_index, request_cookie_override,
 )
-from .database import get_db_connection, get_setting, get_user_cookie, get_user_api_key, decrypt_cookie
+from .database import get_db_connection, get_setting, get_user_cookie, decrypt_cookie
 from gemini_web2api.tools import (
     messages_to_prompt, 
     parse_tool_calls, 
@@ -163,7 +163,7 @@ def authenticate_api_key(request: Request) -> Tuple[Dict[str, Any], Dict[str, An
     def _load_context(uid: int) -> dict:
         c = _gdb()
         r = c.execute(
-            "SELECT gemini_cookie, gemini_auth_user, gemini_xsrf_token, gemini_api_key "
+            "SELECT gemini_cookie, gemini_auth_user, gemini_xsrf_token "
             "FROM users WHERE id = ?", (uid,)
         ).fetchone()
         c.close()
@@ -171,7 +171,6 @@ def authenticate_api_key(request: Request) -> Tuple[Dict[str, Any], Dict[str, An
             "raw_cookie": decrypt_cookie(r["gemini_cookie"]) if r else "",
             "auth_user": (r["gemini_auth_user"] if r else "") or "",
             "xsrf": (r["gemini_xsrf_token"] if r else "") or "",
-            "api_key": decrypt_cookie(r["gemini_api_key"]) if r else "",
         }
 
     ctx = cached_user_context(int(user["id"]), _load_context)
@@ -187,7 +186,6 @@ def authenticate_api_key(request: Request) -> Tuple[Dict[str, Any], Dict[str, An
     user["gemini_cookie_override"] = user_cookie or ""
     user["gemini_auth_user"] = ctx["auth_user"]
     user["gemini_xsrf_token"] = ctx["xsrf"]
-    user["gemini_api_key"] = ctx["api_key"]
 
     # One-time account probe; results are persisted so this is skipped.
     if user_cookie and not user["gemini_auth_user"]:
