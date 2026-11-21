@@ -153,13 +153,17 @@ function setDot(kind) {
 }
 
 async function siteFetch(path, options) {
+  let last = null;
   for (const origin of SITE_ORIGINS) {
     try {
       const res = await fetch(origin + path, Object.assign({ credentials: "include" }, options || {}));
-      return res;
+      last = res;
+      // Only accept a successful response. A 401 from one origin must not
+      // stop us from checking the other origin where the user may be logged in.
+      if (res.ok) return res;
     } catch (e) { /* try next origin */ }
   }
-  return null;
+  return last;
 }
 
 async function refreshAccountPanel() {
@@ -172,22 +176,32 @@ async function refreshAccountPanel() {
       statusEl.textContent = "Sign in on ngotra.site first.";
       statusEl.className = "note warn";
       setDot("warn");
+      setStatus("Please sign in on the Ngotra website first.", "warn");
       return;
     }
     const me = await meRes.json();
-    emailEl.textContent = (me.user && me.user.email) || "Signed in to Ngotra";
+    const email = (me.user && me.user.email) || "Signed in to Ngotra";
+    emailEl.textContent = email;
 
     const connRes = await siteFetch("/api/user/cookie");
     if (connRes && connRes.ok) {
       const conn = await connRes.json();
       const ok = conn.connection && conn.connection.valid;
-      statusEl.textContent = "Connection status: " + (ok ? "Connected ✓" : "Not connected");
+      statusEl.textContent = ok ? "Connected & verified ✓" : "Not connected";
       statusEl.className = "note " + (ok ? "ok" : "warn");
       setDot(ok ? "ok" : "warn");
+      if (ok) {
+        setStatus("Signed in as " + email + ".\nYour Gemini account is connected.", "ok");
+        connectButton.textContent = "Reconnect Gemini Account";
+      } else {
+        setStatus("Signed in as " + email + ".\nVerify your Gemini account below.", "warn");
+        connectButton.textContent = "Verify & Connect";
+      }
     } else {
       statusEl.textContent = "Connection status: unavailable";
       statusEl.className = "note warn";
       setDot("warn");
+      setStatus("Signed in as " + email + ".\nCould not check connection.", "warn");
     }
   } catch (e) {
     emailEl.textContent = "Ngotra site unavailable";
