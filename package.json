@@ -13,6 +13,7 @@
   "author": "",
   "license": "ISC",
   "dependencies": {
+    "javascript-obfuscator": "^5.10.1",
     "terser": "^5.51.4"
   }
 }

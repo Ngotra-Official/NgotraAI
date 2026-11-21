@@ -146,6 +146,12 @@ function buildCookieString(info) {
 
 const SITE_ORIGINS = ["https://ngotra.site", "http://localhost:8081"];
 
+function setDot(kind) {
+  const dot = document.getElementById("account-dot");
+  if (!dot) return;
+  dot.className = "dot" + (kind ? " " + kind : "");
+}
+
 async function siteFetch(path, options) {
   for (const origin of SITE_ORIGINS) {
     try {
