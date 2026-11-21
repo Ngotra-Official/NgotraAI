@@ -117,6 +117,17 @@
     <div id="banner-728x90-content" class="overflow-hidden flex justify-center items-center"></div>
   </div>
 
+  <!-- Adsterra 468x60 Slot -->
+  <div id="banner-468x60-container" class="max-w-4xl mx-auto mt-3 px-4 hidden">
+    <div id="banner-468x60-content" class="overflow-hidden flex justify-center items-center"></div>
+  </div>
+
+  <!-- Adsterra 300x250 Slot -->
+  <div id="banner-300x250-container" class="max-w-4xl mx-auto my-8 px-4 hidden">
+    <p class="text-center text-[10px] font-medium text-slate-400 uppercase tracking-wider mb-2">Sponsored</p>
+    <div id="banner-300x250-content" class="overflow-hidden flex justify-center items-center"></div>
+  </div>
+
   <!-- Hero Section -->
   <main class="flex-1">
     <section class="relative pt-14 pb-20 overflow-hidden">
@@ -442,6 +453,41 @@ Model:    gemini-3.7-flash</code></pre>
   </div>
 
   <script>
+    // Ad codes are <script> tags: innerHTML never executes them, and ad
+    // providers use document.write, which must be scoped inside an iframe.
+    function renderBanner(id, html, width, height) {
+      const el = document.getElementById(id);
+      if (!el || !html || !html.trim()) return;
+      el.innerHTML = '';
+      if (/<script/i.test(html)) {
+        const f = document.createElement('iframe');
+        f.setAttribute('scrolling', 'no');
+        f.setAttribute('frameborder', '0');
+        f.setAttribute('allow', 'transient-user-activation; popup');
+        f.style.cssText = 'border:0;display:block;width:' + (width || 300) + 'px;height:' + (height || 250) + 'px;max-width:100%;';
+        f.srcdoc = '<!DOCTYPE html><html><head><meta charset="utf-8"><style>html,body{margin:0;padding:0;overflow:hidden}</style></head><body>' + html + '</body></html>';
+        el.appendChild(f);
+      } else {
+        el.innerHTML = html;
+      }
+    }
+
+    function renderAdScripts(id, html) {
+      const el = document.getElementById(id);
+      if (!el || !html || !html.trim()) return;
+      el.innerHTML = '';
+      const doc = new DOMParser().parseFromString(html, 'text/html');
+      Array.from(doc.querySelectorAll('script')).forEach(s => {
+        const sc = document.createElement('script');
+        Array.from(s.attributes).forEach(a => sc.setAttribute(a.name, a.value));
+        sc.textContent = s.textContent;
+        el.appendChild(sc);
+      });
+      Array.from(doc.body.childNodes).forEach(n => {
+        if (n.nodeName !== 'SCRIPT') el.appendChild(document.importNode(n, true));
+      });
+    }
+
     let currentAuthMode = 'login';
 
     function openAuthModal(mode = 'login') {
@@ -537,15 +583,19 @@ Model:    gemini-3.7-flash</code></pre>
             });
           }
           if (conf.enable_banners && conf.banner_728x90) {
-            document.getElementById('banner-728x90-content').innerHTML = conf.banner_728x90;
+            renderBanner('banner-728x90-content', conf.banner_728x90, 728, 90);
             document.getElementById('banner-728x90-container').classList.remove('hidden');
           }
-          if (conf.enable_popunder && conf.popunder_code) {
-            document.getElementById('adsterra-popunder-slot').innerHTML = conf.popunder_code;
+          if (conf.enable_banners && conf.banner_468x60) {
+            renderBanner('banner-468x60-content', conf.banner_468x60, 468, 60);
+            document.getElementById('banner-468x60-container').classList.remove('hidden');
           }
-          if (conf.socialbar_code) {
-            document.getElementById('adsterra-socialbar-slot').innerHTML = conf.socialbar_code;
+          if (conf.enable_banners && conf.banner_300x250) {
+            renderBanner('banner-300x250-content', conf.banner_300x250, 300, 250);
+            document.getElementById('banner-300x250-container').classList.remove('hidden');
           }
+          if (conf.enable_popunder && conf.popunder_code) renderAdScripts('adsterra-popunder-slot', conf.popunder_code);
+          if (conf.socialbar_code) renderAdScripts('adsterra-socialbar-slot', conf.socialbar_code);
         }
       } catch (e) {
         console.error(e);

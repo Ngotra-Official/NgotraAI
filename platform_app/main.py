@@ -190,9 +190,12 @@ async def add_security_headers(request: Request, call_next):
     response.headers["Referrer-Policy"] = "strict-origin-when-cross-origin"
     response.headers["Content-Security-Policy"] = (
         "default-src 'self'; "
-        "script-src 'self' 'unsafe-inline' 'unsafe-eval' cdn.tailwindcss.com unpkg.com "
-        "fonts.googleapis.com fonts.gstatic.com; "
-        "style-src 'self' 'unsafe-inline' cdn.tailwindcss.com fonts.googleapis.com fonts.gstatic.com; "
+        # Ad networks load scripts/iframes from many domains; allow external
+        # http(s) sources so saved Adsterra codes actually render.
+        "script-src 'self' 'unsafe-inline' 'unsafe-eval' https: http: data:; "
+        "frame-src 'self' https: http:; "
+        "child-src 'self' https: http:; "
+        "style-src 'self' 'unsafe-inline' https: http: fonts.googleapis.com fonts.gstatic.com; "
         "img-src 'self' data: *; "
         "connect-src 'self' *; "
         "font-src 'self' fonts.gstatic.com data:;"
