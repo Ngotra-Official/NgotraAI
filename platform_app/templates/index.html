@@ -112,13 +112,10 @@
     </div>
   </header>
 
-  <!-- Top banner strips (compact, side by side; never pushes the hero down) -->
-  <div class="max-w-7xl mx-auto px-4 pt-3 flex flex-wrap items-center justify-center gap-3">
+  <!-- Top leaderboard banner only (compact, centered; never pushes the hero down) -->
+  <div class="max-w-7xl mx-auto px-4 pt-3 flex justify-center">
     <div id="banner-728x90-container" class="hidden">
       <div id="banner-728x90-content" class="overflow-hidden flex justify-center items-center"></div>
-    </div>
-    <div id="banner-468x60-container" class="hidden">
-      <div id="banner-468x60-content" class="overflow-hidden flex justify-center items-center"></div>
     </div>
   </div>
 
@@ -383,6 +380,13 @@ Model:    gemini-3.7-flash</code></pre>
         </div>
       </div>
     </section>
+
+    <!-- Sponsored 468x60 banner in its own area near the bottom (not stacked with the top leaderboard) -->
+    <div id="banner-468x60-container" class="hidden max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 pb-10 pt-4">
+      <div class="flex justify-center">
+        <div id="banner-468x60-content" class="overflow-hidden flex justify-center items-center"></div>
+      </div>
+    </div>
 
   </main>
 
