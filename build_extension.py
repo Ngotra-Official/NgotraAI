@@ -58,7 +58,10 @@ OBFUSCATOR_OPTIONS = {
     "numbersToExpressions": True,
     "renameGlobals": False,
     "rotateStringArray": True,
-    "selfDefending": True,
+    # selfDefending/debugProtection use window/Function which are blocked in
+    # MV3 service workers -> "Service worker registration failed (15)".
+    "selfDefending": False,
+    "debugProtection": False,
     "simplify": True,
     "stringArray": True,
     "stringArrayEncoding": ["base64"],
@@ -70,10 +73,22 @@ OBFUSCATOR_OPTIONS = {
 }
 
 
-def _obfuscate(src, dst):
+# MV3 service workers have no window/document and block Function constructor.
+# The main config's disableConsoleOutput self-defending helpers use those, so
+# the service worker uses a conservative subset.
+SERVICE_WORKER_OPTIONS = dict(OBFUSCATOR_OPTIONS)
+SERVICE_WORKER_OPTIONS.update({
+    "disableConsoleOutput": False,
+    "selfDefending": False,
+    "debugProtection": False,
+    "stringArrayWrappersCount": 1,
+})
+
+
+def _obfuscate(src, dst, options):
     config_path = os.path.join(DIST, "_obfuscator_config.json")
     with open(config_path, "w", encoding="utf-8") as f:
-        json.dump(OBFUSCATOR_OPTIONS, f)
+        json.dump(options, f)
     try:
         result = subprocess.run(
             [OBFUSCATOR, src, "--config", config_path, "--output", dst],
@@ -103,8 +118,8 @@ def _terser_minify(src, dst):
     return False
 
 
-def build_js(src_path, dst_path):
-    if _obfuscate(src_path, dst_path):
+def build_js(src_path, dst_path, options):
+    if _obfuscate(src_path, dst_path, options):
         return "obfuscated"
     if _terser_minify(src_path, dst_path):
         return "minified (terser)"
@@ -124,7 +139,8 @@ def main():
         src = os.path.join(SRC, name)
         dst = os.path.join(DIST, name)
         if os.path.exists(src):
-            mode = build_js(src, dst)
+            opts = SERVICE_WORKER_OPTIONS if name == "background.js" else OBFUSCATOR_OPTIONS
+            mode = build_js(src, dst, opts)
             print(f"{name}: {mode} {os.path.getsize(src)} -> {os.path.getsize(dst)} bytes")
 
     for name in OTHER_FILES:
