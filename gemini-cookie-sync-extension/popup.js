@@ -36,6 +36,14 @@ const LOOKUP_URLS = [
 
 const statusEl = document.getElementById("status");
 const connectButton = document.getElementById("connect");
+const loginBox = document.getElementById("login-box");
+const loginButton = document.getElementById("login-btn");
+const loginEmail = document.getElementById("login-email");
+const loginPassword = document.getElementById("login-password");
+
+function showLogin(show) {
+  if (loginBox) loginBox.classList.toggle("hidden", !show);
+}
 
 function setStatus(message, kind = "") {
   statusEl.textContent = message;
@@ -197,12 +205,14 @@ async function refreshAccountPanel() {
       statusEl.textContent = "Sign in on ngotra.site first.";
       statusEl.className = "note warn";
       setDot("warn");
-      setStatus("Please sign in on the Ngotra website first.", "warn");
+      showLogin(true);
+      setStatus("Sign in with your Ngotra account below to continue.", "warn");
       return;
     }
     const me = meRes.data || {};
     const email = (me.user && me.user.email) || "Signed in to Ngotra";
     emailEl.textContent = email;
+    showLogin(false);
 
     const connRes = await siteApi("/api/user/cookie", "GET");
     if (connRes && connRes.ok) {
@@ -229,7 +239,36 @@ async function refreshAccountPanel() {
     statusEl.textContent = "Open ngotra.site and sign in.";
     statusEl.className = "note warn";
     setDot("warn");
+    showLogin(true);
   }
+}
+
+if (loginButton) {
+  loginButton.addEventListener("click", async () => {
+    const email = (loginEmail.value || "").trim();
+    const password = loginPassword.value || "";
+    if (!email || !password) {
+      setStatus("Enter your Ngotra email and password.", "warn");
+      return;
+    }
+    loginButton.disabled = true;
+    setStatus("Signing in to Ngotra…");
+    try {
+      const res = await siteApi("/api/auth/login", "POST", { email, password });
+      if (res.ok) {
+        loginPassword.value = "";
+        setStatus("Signed in successfully.", "ok");
+        await refreshAccountPanel();
+      } else {
+        const msg = (res.data && (res.data.detail || (res.data.error && res.data.error.message))) || res.error || "Sign in failed.";
+        setStatus(typeof msg === "string" ? msg : JSON.stringify(msg), "warn");
+      }
+    } catch (e) {
+      setStatus(e.message || "Sign in failed.", "warn");
+    } finally {
+      loginButton.disabled = false;
+    }
+  });
 }
 
 refreshAccountPanel();
