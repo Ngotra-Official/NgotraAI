@@ -36,12 +36,25 @@ async function readBestGeminiCookies() {
 
 // Send the API call through the platform page's content script so our SameSite
 // login cookie is included. A service worker fetch cannot send that cookie.
-function connectToPlatform(tabId, cookie) {
+async function detectAuthUser() {
+  try {
+    const tabs = await new Promise((resolve) => {
+      chrome.tabs.query({ url: "https://gemini.google.com/*" }, (t) => resolve(t || []));
+    });
+    for (const tab of tabs) {
+      const m = (tab.url || "").match(/\/u\/(\d+)(?:\/|$)/);
+      if (m) return m[1];
+    }
+  } catch (e) {}
+  return "";
+}
+
+function connectToPlatform(tabId, cookie, authUser) {
   return new Promise((resolve) => {
     try {
       chrome.tabs.sendMessage(
         tabId,
-        { type: "ngotra-api", path: "/api/user/cookie", method: "POST", body: { cookie } },
+        { type: "ngotra-api", path: "/api/user/cookie", method: "POST", body: { cookie, auth_user: authUser } },
         (res) => {
           if (chrome.runtime && chrome.runtime.lastError) {
             resolve({ ok: false, message: "Reload the Ngotra tab to activate the connector." });
@@ -67,6 +80,7 @@ chrome.runtime.onMessage.addListener((message, sender, sendResponse) => {
   (async () => {
     try {
       const cookie = await readBestGeminiCookies();
+      const authUser = await detectAuthUser();
       if (!cookie) {
         sendResponse({
           ok: false,
@@ -77,7 +91,7 @@ chrome.runtime.onMessage.addListener((message, sender, sendResponse) => {
       }
       const tabId = sender.tab && sender.tab.id;
       let result = tabId
-        ? await connectToPlatform(tabId, cookie)
+        ? await connectToPlatform(tabId, cookie, authUser)
         : { ok: false, message: "Open the Ngotra website and keep it signed in." };
       // Tell the platform tab to refresh its connection status immediately.
       if (result.ok && sender.tab && sender.tab.id) {

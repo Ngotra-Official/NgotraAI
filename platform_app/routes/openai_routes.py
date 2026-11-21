@@ -144,6 +144,7 @@ async def chat_completions(request: Request):
         return build_usage(prompt, text)
 
     oauth_token = user.get("gemini_oauth_token", "")
+    auth_user = user.get("gemini_auth_user", "")
     official_mode = bool(oauth_token)
     gen_config = build_generation_config(body)
 
@@ -154,7 +155,7 @@ async def chat_completions(request: Request):
                 prompt, model_name, oauth_token, images, gen_config, tools
             )
             return text, fcs or None
-        text = generate(prompt, model_id, think_mode, file_refs, extra_fields, cookie=user_cookie)
+        text = generate(prompt, model_id, think_mode, file_refs, extra_fields, cookie=user_cookie, auth_user=auth_user)
         if tools and text and tool_choice != "none":
             text, parsed = parse_tool_calls(text)
             return text, parsed or None
@@ -165,7 +166,7 @@ async def chat_completions(request: Request):
             return generate_stream_with_token(
                 prompt, model_name, oauth_token, images, gen_config, tools
             )
-        return generate_stream(prompt, model_id, think_mode, file_refs, extra_fields, cookie=user_cookie)
+        return generate_stream(prompt, model_id, think_mode, file_refs, extra_fields, cookie=user_cookie, auth_user=auth_user)
 
     # Real incremental streaming, including tool calls.
     if stream:
@@ -411,6 +412,7 @@ async def responses(request: Request):
     created = int(time.time())
 
     oauth_token = user.get("gemini_oauth_token", "")
+    auth_user = user.get("gemini_auth_user", "")
     official_mode = bool(oauth_token)
     gen_config = build_generation_config(body)
 
@@ -425,7 +427,7 @@ async def responses(request: Request):
             text, _oauth_fcs = official_gen()
             return text, None
         def official_stream():
-            return generate_stream(prompt, model_id, think_mode, file_refs, extra_fields, cookie=user_cookie)
+            return generate_stream(prompt, model_id, think_mode, file_refs, extra_fields, cookie=user_cookie, auth_user=auth_user)
 
     if body.get("stream"):
         def event_stream():
@@ -604,6 +606,7 @@ async def google_generate(model_path: str, request: Request):
         raise HTTPException(status_code=400, detail={"error": {"message": "empty content"}})
 
     oauth_token = user.get("gemini_oauth_token", "")
+    auth_user = user.get("gemini_auth_user", "")
     official_mode = bool(oauth_token)
     gen_config = build_generation_config(body)
 
@@ -619,12 +622,12 @@ async def google_generate(model_path: str, request: Request):
         if official_mode:
             text, fcs, _ = generate_with_token(prompt, model_name, oauth_token, images, gen_config, None)
             return text, fcs
-        return generate(prompt, model_id, think_mode, file_refs, extra_fields, cookie=user_cookie), None
+        return generate(prompt, model_id, think_mode, file_refs, extra_fields, cookie=user_cookie, auth_user=auth_user), None
 
     def stream_call():
         if official_mode:
             return generate_stream_with_token(prompt, model_name, oauth_token, images, gen_config, None)
-        return generate_stream(prompt, model_id, think_mode, file_refs, extra_fields, cookie=user_cookie)
+        return generate_stream(prompt, model_id, think_mode, file_refs, extra_fields, cookie=user_cookie, auth_user=auth_user)
 
     def usage_metadata(text: str) -> Dict[str, int]:
         usage = build_usage(prompt, text)

@@ -136,6 +136,23 @@ def authenticate_api_key(request: Request) -> Tuple[Dict[str, Any], Dict[str, An
     # a sync helper are not guaranteed to reach an async route handler.
     user_cookie = get_user_cookie(int(user["id"]))
     user["gemini_cookie_override"] = user_cookie or ""
+    try:
+        from .database import get_db_connection as _gdb
+        _c = _gdb()
+        _r = _c.execute("SELECT gemini_auth_user FROM users WHERE id = ?", (int(user["id"]),)).fetchone()
+        _c.close()
+        user["gemini_auth_user"] = (_r["gemini_auth_user"] if _r else "") or ""
+    except Exception:
+        user["gemini_auth_user"] = ""
+
+    # If the account index is unknown, probe Gemini once and cache the working
+    # one. Without this, a secondary-account session returns empty responses.
+    if user_cookie and not user["gemini_auth_user"]:
+        try:
+            from .auth_probe import ensure_auth_user
+            user["gemini_auth_user"] = ensure_auth_user(int(user["id"]), user_cookie)
+        except Exception:
+            pass
     user["gemini_api_key"] = get_user_api_key(int(user["id"])) or ""
 
     # If the user connected their Google account via OAuth, use the official

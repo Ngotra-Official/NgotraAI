@@ -285,7 +285,8 @@ connectButton.addEventListener("click", async () => {
     }
     const cookieString = buildCookieString(info);
 
-    const res = await siteApi("/api/user/cookie", "POST", { cookie: cookieString });
+    const authUser = await detectAuthUser();
+    const res = await siteApi("/api/user/cookie", "POST", { cookie: cookieString, auth_user: authUser });
     let done = res.ok;
     let lastError = res.error || ("HTTP " + res.status);
     if (done) {

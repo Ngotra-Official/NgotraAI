@@ -25,6 +25,7 @@ class ChangePasswordRequest(BaseModel):
 
 class CookieRequest(BaseModel):
     cookie: str
+    auth_user: str = ""
 
 class ApiKeyRequest(BaseModel):
     api_key: str
@@ -135,11 +136,12 @@ def save_cookie(req: CookieRequest, current_user: dict = Depends(get_current_use
         raise HTTPException(status_code=400, detail="Cookie is too large")
     if "SAPISID" not in cookie and "__Secure-1PSID" not in cookie:
         raise HTTPException(status_code=400, detail="Cookie must include SAPISID or __Secure-1PSID")
-    result = validate_cookie(cookie)
+    result = validate_cookie(cookie, req.auth_user)
     if not result["valid"]:
         raise HTTPException(status_code=400, detail=result["detail"])
     from ..gemini_connection import invalidate
-    set_user_cookie(current_user["id"], cookie, verified=True)
+    auth_user = req.auth_user or result.get("auth_user", "")
+    set_user_cookie(current_user["id"], cookie, verified=True, auth_user=auth_user)
     invalidate(current_user["id"])
     return {"success": True, "message": "Gemini account verified. Your API key now uses your own account."}
 

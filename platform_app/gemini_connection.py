@@ -44,6 +44,14 @@ def invalidate(user_id: int):
 def connection_state(user_id: int, force: bool = False) -> dict:
     """Return {"connected", "valid", "reason"} for a user's Gemini account."""
     cookie = get_user_cookie(user_id)
+    try:
+        from .database import get_db_connection as _gdb
+        _c = _gdb()
+        _r = _c.execute("SELECT gemini_auth_user FROM users WHERE id = ?", (user_id,)).fetchone()
+        _c.close()
+        auth_user = (_r["gemini_auth_user"] if _r else "") or ""
+    except Exception:
+        auth_user = ""
     if not cookie:
         invalidate(user_id)
         return {"connected": False, "valid": False, "reason": "not_connected"}

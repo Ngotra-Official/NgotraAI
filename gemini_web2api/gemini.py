@@ -103,7 +103,7 @@ def load_cookie() -> tuple:
         return _cookie_cache["str"], _cookie_cache["sapisid"]
 
 
-def validate_cookie(cookie_str: str) -> dict:
+def validate_cookie(cookie_str: str, auth_user: str = "") -> dict:
     """Check a Gemini web cookie by loading the app page with it.
 
     Returns {"valid": bool, "state": "ok"|"expired"|"error", "detail": str}.
@@ -124,7 +124,9 @@ def validate_cookie(cookie_str: str) -> dict:
     if sapisid:
         headers["Authorization"] = make_sapisidhash(sapisid)
 
-    url = f"https://gemini.google.com{_account_prefix()}/app"
+    url = f"https://gemini.google.com{_account_prefix(auth_user)}/app"
+    if auth_user:
+        headers["X-Goog-AuthUser"] = str(auth_user)
     proxy = CONFIG.get("proxy")
     try:
         req = urllib.request.Request(url, headers=headers)
@@ -143,9 +145,18 @@ def validate_cookie(cookie_str: str) -> dict:
 
     if "accounts.google.com" in final_url or "ServiceLogin" in final_url:
         return {"valid": False, "state": "expired", "detail": "Session expired. Connect again."}
+    # Google redirects a secondary-account session to /u/<n>/app. Capture that
+    # number so requests are routed to the correct Gemini account.
+    detected_auth_user = ""
+    m = re.search(r"/u/(\d+)(?:/|$)", final_url)
+    if m:
+        detected_auth_user = m.group(1)
+
     if "WIZ_global_data" in body or "SNlM0e" in body or 'data-app="gemini"' in body:
-        return {"valid": True, "state": "ok", "detail": "Connected to Gemini."}
-    return {"valid": False, "state": "expired", "detail": "Not signed in to Gemini."}
+        return {"valid": True, "state": "ok", "detail": "Connected to Gemini.",
+                "auth_user": detected_auth_user}
+    return {"valid": False, "state": "expired", "detail": "Not signed in to Gemini.",
+            "auth_user": detected_auth_user}
 
 
 def make_sapisidhash(sapisid: str) -> str:
@@ -154,16 +165,16 @@ def make_sapisidhash(sapisid: str) -> str:
     return f"SAPISIDHASH {ts}_{h}"
 
 
-def _account_prefix() -> str:
+def _account_prefix(auth_user: str = "") -> str:
     """Return the Gemini account path prefix for non-default Google accounts."""
-    auth_user = CONFIG.get("auth_user")
-    if auth_user is None or auth_user == "":
+    au = auth_user or CONFIG.get("auth_user")
+    if au is None or au == "":
         return ""
-    return f"/u/{auth_user}"
+    return f"/u/{au}"
 
 
-def _build_headers(cookie: str = "") -> dict:
-    account_prefix = _account_prefix()
+def _build_headers(cookie: str = "", auth_user: str = "") -> dict:
+    account_prefix = _account_prefix(auth_user)
     headers = {
         "Content-Type": "application/x-www-form-urlencoded",
         "Origin": "https://gemini.google.com",
@@ -172,7 +183,7 @@ def _build_headers(cookie: str = "") -> dict:
         "User-Agent": "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36",
     }
     if account_prefix:
-        headers["X-Goog-AuthUser"] = str(CONFIG["auth_user"])
+        headers["X-Goog-AuthUser"] = str(auth_user or CONFIG["auth_user"])
     # An explicit cookie is passed straight through from the platform gateway.
     # This avoids ContextVar token resets across async/thread contexts during
     # streaming, which aborted responses after the first chunk.
@@ -233,9 +244,9 @@ def _build_payload(prompt: str, model_id: int, think_mode: int, file_refs: list 
     return urllib.parse.urlencode(params)
 
 
-def _get_url() -> str:
+def _get_url(auth_user: str = "") -> str:
     reqid = int(time.time()) % 1000000
-    account_prefix = _account_prefix()
+    account_prefix = _account_prefix(auth_user)
     return (
         f"https://gemini.google.com{account_prefix}/_/BardChatUi/data/"
         "assistant.lamda.BardFrontendService/StreamGenerate"
@@ -289,11 +300,11 @@ def extract_response_text(raw: str) -> str:
 
 
 def generate(prompt: str, model_id: int, think_mode: int, file_refs: list = None,
-             extra_fields: dict = None, cookie: str = "") -> str:
+             extra_fields: dict = None, cookie: str = "", auth_user: str = "") -> str:
     """Non-streaming generation with retry."""
     body = _build_payload(prompt, model_id, think_mode, file_refs, extra_fields).encode()
-    url = _get_url()
-    headers = _build_headers(cookie)
+    url = _get_url(auth_user)
+    headers = _build_headers(cookie, auth_user)
     ctx = _get_ssl_ctx()
     proxy = CONFIG.get("proxy")
 
@@ -320,17 +331,17 @@ def generate(prompt: str, model_id: int, think_mode: int, file_refs: list = None
 
 
 def generate_stream(prompt: str, model_id: int, think_mode: int, file_refs: list = None,
-                    extra_fields: dict = None, cookie: str = ""):
+                    extra_fields: dict = None, cookie: str = "", auth_user: str = ""):
     """Streaming generation via httpx with retry on connection failure."""
     if not HAS_HTTPX:
-        text = generate(prompt, model_id, think_mode, file_refs, extra_fields, cookie)
+        text = generate(prompt, model_id, think_mode, file_refs, extra_fields, cookie, auth_user)
         if text:
             yield text
         return
 
     body = _build_payload(prompt, model_id, think_mode, file_refs, extra_fields)
-    url = _get_url()
-    headers = _build_headers(cookie)
+    url = _get_url(auth_user)
+    headers = _build_headers(cookie, auth_user)
     client = _get_httpx_client()
 
     last_err = None
