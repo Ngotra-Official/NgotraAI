@@ -22,6 +22,9 @@ def test_classify_error_expanded_patterns():
     assert classify_error("PERMISSION_DENIED") == "auth"
     assert classify_error("BardErrorInfo [123]") == "upstream"
     assert classify_error("something random") == ""
+    # 1060 = LOCATION_REJECTED, not a cookie/rate-limit problem.
+    assert classify_error('[["BardErrorInfo",1060]]') == "location"
+    assert classify_error("Gemini upstream BardErrorInfo (code 1060): location rejected") == "location"
 
 
 class _Resp:
@@ -36,6 +39,24 @@ class _Resp:
         async def _gen():
             yield self._text
         return _gen()
+
+    async def __aenter__(self):
+        return self
+
+    async def __aexit__(self, *args):
+        return False
+
+
+class _LocationClient:
+    attempts = []
+
+    def __init__(self, **kwargs):
+        pass
+
+    def stream(self, method, url, content=None, headers=None):
+        cookie = (headers or {}).get("Cookie", "")
+        self.attempts.append("primary" if "primary" in cookie else "pool")
+        return _Resp('[["BardErrorInfo",1060]]\n')
 
     async def __aenter__(self):
         return self
@@ -109,8 +130,40 @@ def test_fallback_on_bard_error_without_surfacing_upstream_error():
     assert _Client.attempts == ["primary", "pool"], _Client.attempts
 
 
+def test_location_error_aborts_fallback_with_actionable_message():
+    original_pool = astream_mod.CONFIG.get("cookie_pool")
+    astream_mod.CONFIG["cookie_pool"] = ["SAPISID=pool; x=1"]
+    _LocationClient.attempts = []
+
+    async def _run():
+        with mock.patch.object(astream_mod.httpx, "AsyncClient", _LocationClient), \
+             mock.patch.object(astream_mod, "cool"), \
+             mock.patch.object(astream_mod, "mark_success"):
+            try:
+                async for _ in astream("hi", "gemini-2.5-flash", 4,
+                                       cookie="SAPISID=primary; x=1", allow_fallback=True):
+                    pass
+            except RuntimeError as e:
+                return str(e)
+        return ""
+
+    try:
+        msg = asyncio.run(_run())
+    finally:
+        if original_pool is None:
+            astream_mod.CONFIG.pop("cookie_pool", None)
+        else:
+            astream_mod.CONFIG["cookie_pool"] = original_pool
+
+    assert "code 1060" in msg, msg
+    assert "docker-compose.host.yml" in msg, msg
+    # No pool accounts should be tried — they all share the rejected server IP.
+    assert _LocationClient.attempts == ["primary"], _LocationClient.attempts
+
+
 if __name__ == "__main__":
     test_error_detail_extracts_bard_code()
     test_classify_error_expanded_patterns()
     test_fallback_on_bard_error_without_surfacing_upstream_error()
+    test_location_error_aborts_fallback_with_actionable_message()
     print("ALL UPSTREAM FALLBACK TESTS PASSED")

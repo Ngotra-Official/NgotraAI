@@ -233,3 +233,22 @@ Set a cron to back up daily and keep recent copies off-server.
 | "database is locked" | Ensure `./data` is a persistent volume, not a container layer. |
 | Login sessions reset on restart | JWT secret changed — keep it stable in `.env`. |
 | Extension download 404 | Run `python build_extension.py` before building, or keep `gemini-connector.zip` in the repo. |
+| `Gemini upstream BardErrorInfo issue (code 1060)` | `LOCATION_REJECTED` — Gemini blocks the **server's** IP/region. Reconnecting accounts will not help. See below. |
+
+### Fixing code 1060 (location rejected)
+
+Code 1060 is not a bad cookie or a rate limit. Google rejects the network location of the machine making the request. Common causes and fixes:
+
+1. **Docker bridge networking (most common on VPS)** — switch to host networking, which shares the host's egress IP:
+   ```bash
+   cd /opt/ngotra
+   docker compose down
+   docker compose -f docker-compose.host.yml up -d --build
+   ```
+   With host networking, `ports:` mappings are ignored — the app listens directly on the host at `127.0.0.1:8081`, so an existing Nginx reverse proxy keeps working. Use the same `-f docker-compose.host.yml` flag for future `up` / `restart` / `logs` commands.
+
+2. **VPS / data-centre IP flagged by Google** — set a residential or mobile proxy in **Admin → Gemini Engine → HTTP / SOCKS5 Proxy URL**. Requests to Gemini will then egress from the proxy's location.
+
+3. **Region not supported by Gemini** — use a server or proxy in a country where the Gemini web app is available.
+
+After changing networking, restart and hard-refresh the browser. The gateway now surfaces the actionable 1060 message directly instead of retrying the same rejected IP.

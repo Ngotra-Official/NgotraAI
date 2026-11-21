@@ -27,13 +27,18 @@ THINK_MARK = "\u2063THINK\u2063"
 def classify_error(text: str, status: int = 0) -> str:
     """Classify an upstream response so we can cool down the right account."""
     low = (text or "").lower()
+    bard = "barderrorinfo" in low
+    # 1060 = LOCATION_REJECTED: the server's IP/region is blocked by Gemini.
+    # Not a cookie problem — retrying or switching accounts on the same IP won't help.
+    if bard and "1060" in low:
+        return "location"
     if status in (429, 503) or "rate limit" in low or "rate_limit" in low or "too many requests" in low or "rate_limit_exceeded" in low:
         return "rate_limit"
-    if "quota" in low or "billing" in low or "resource_exhausted" in low:
+    if "quota" in low or "billing" in low or "resource_exhausted" in low or (bard and "1037" in low):
         return "quota"
     if "sign in" in low or "unauthorized" in low or "authentication" in low or "session expired" in low or "permission_denied" in low:
         return "auth"
-    if "barderrorinfo" in low:
+    if bard:
         return "upstream"
     return ""
 
@@ -42,7 +47,7 @@ def cool(cookie: str, reason: str) -> None:
     if not cookie:
         return
     seconds = 90 if reason in ("rate_limit", "quota") else 30
-    if reason == "auth":
+    if reason in ("auth", "location"):
         seconds = 300
     mark_failure(cookie, reason, seconds)
 

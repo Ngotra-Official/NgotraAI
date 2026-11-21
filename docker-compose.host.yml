@@ -1,0 +1,23 @@
+# Alternative deployment for VPS environments where Gemini returns
+# BardErrorInfo [1060] (LOCATION_REJECTED) behind Docker's default bridge.
+#
+# Host networking shares the host's network stack / egress IP with the
+# container. With this mode `ports:` mappings are ignored — the app listens
+# directly on the host at port 8081 (it binds 0.0.0.0:8081).
+#
+# Usage:
+#   docker compose down
+#   docker compose -f docker-compose.host.yml up -d --build
+
+services:
+  ngotra:
+    build: .
+    image: ngotra-ai:latest
+    container_name: ngotra-ai
+    restart: unless-stopped
+    network_mode: host
+    volumes:
+      - ./data:/app/data
+    environment:
+      - NGOTRA_JWT_SECRET=${NGOTRA_JWT_SECRET:-CHANGE_ME_TO_A_LONG_RANDOM_STRING}
+      - NGOTRA_COOKIE_KEY=${NGOTRA_COOKIE_KEY:-CHANGE_ME_TO_ANOTHER_LONG_RANDOM_STRING}

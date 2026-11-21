@@ -75,6 +75,14 @@ async def astream(prompt, model_id, think_mode, file_refs=None, extra_fields=Non
                         if reason:
                             cool(ck, reason)
                         detail = _error_detail(local_buf[:4000])
+                        if reason == "location":
+                            raise RuntimeError(
+                                "Gemini upstream BardErrorInfo (code 1060): location rejected. "
+                                "This server's IP/region is blocked by Gemini — switching accounts "
+                                "or reconnecting will not help. On a VPS this is usually Docker "
+                                "bridge networking; use docker-compose.host.yml (host network) or "
+                                "set a proxy in Admin → Gemini Engine."
+                            )
                         suffix = f" ({detail})" if detail else ""
                         raise RuntimeError(
                             f"Gemini upstream BardErrorInfo issue{suffix}: {reason or 'error'}"
@@ -116,6 +124,7 @@ async def astream(prompt, model_id, think_mode, file_refs=None, extra_fields=Non
                 if alt and alt != cookie:
                     candidates.append((alt, ""))
 
+        location_rejected = False
         for ci, (ck, au) in enumerate(candidates):
             if ci and not health(ck)["ok"]:
                 continue
@@ -136,7 +145,14 @@ async def astream(prompt, model_id, think_mode, file_refs=None, extra_fields=Non
                 except Exception as e:
                     last_error = e
                     reason = classify_error(str(e))
+                    # Every account on this server shares the same rejected IP —
+                    # trying more of them just burns time.
+                    if reason == "location":
+                        location_rejected = True
+                        break
                     if attempt < attempts - 1 and not reason:
                         continue
                     break
+            if location_rejected:
+                break
         raise last_error
