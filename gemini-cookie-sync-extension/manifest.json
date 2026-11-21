@@ -1,8 +1,13 @@
 {
   "manifest_version": 3,
   "name": "Ngotra Gemini Connector",
-  "version": "2.0",
+  "version": "2.1",
   "description": "Securely connects your signed-in Gemini account to Ngotra.",
+  "icons": {
+    "16": "icon.png",
+    "48": "icon.png",
+    "128": "icon.png"
+  },
   "permissions": [
     "cookies",
     "downloads",
@@ -20,7 +25,12 @@
   },
   "action": {
     "default_title": "Ngotra Gemini Connector",
-    "default_popup": "popup.html"
+    "default_popup": "popup.html",
+    "default_icon": {
+      "16": "icon.png",
+      "48": "icon.png",
+      "128": "icon.png"
+    }
   },
   "content_scripts": [
     {

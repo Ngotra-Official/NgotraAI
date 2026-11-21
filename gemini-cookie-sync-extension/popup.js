@@ -165,6 +165,7 @@ async function refreshAccountPanel() {
       emailEl.textContent = "Not signed in to Ngotra";
       statusEl.textContent = "Sign in on ngotra.site first.";
       statusEl.className = "note warn";
+      setDot("warn");
       return;
     }
     const me = await meRes.json();
@@ -176,14 +177,17 @@ async function refreshAccountPanel() {
       const ok = conn.connection && conn.connection.valid;
       statusEl.textContent = "Connection status: " + (ok ? "Connected ✓" : "Not connected");
       statusEl.className = "note " + (ok ? "ok" : "warn");
+      setDot(ok ? "ok" : "warn");
     } else {
       statusEl.textContent = "Connection status: unavailable";
       statusEl.className = "note warn";
+      setDot("warn");
     }
   } catch (e) {
     emailEl.textContent = "Ngotra site unavailable";
     statusEl.textContent = "Open ngotra.site and sign in.";
     statusEl.className = "note warn";
+    setDot("warn");
   }
 }
 

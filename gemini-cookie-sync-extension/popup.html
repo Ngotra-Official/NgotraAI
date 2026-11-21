@@ -11,13 +11,10 @@
       width: 360px; margin: 0; padding: 20px;
       background: Canvas; color: CanvasText;
     }
-    .brand { display: flex; align-items: center; gap: 10px; margin-bottom: 16px; }
-    .brand-mark {
-      width: 34px; height: 34px; border-radius: 8px;
-      background: #0f172a; color: white; display: flex;
-      align-items: center; justify-content: center; font-weight: 700;
-    }
-    h1 { font-size: 16px; margin: 0; }
+    .brand { display: flex; align-items: center; gap: 11px; margin-bottom: 6px; }
+    .brand img { width: 38px; height: 38px; object-fit: contain; }
+    h1 { font-size: 16px; margin: 0; font-weight: 700; }
+    .tagline { font-size: 11px; opacity: .65; margin: 2px 0 0; }
     p { font-size: 13px; line-height: 1.5; margin: 10px 0; }
     button {
       width: 100%; padding: 11px 12px; margin-top: 12px;
@@ -31,29 +28,42 @@
       min-height: 40px; margin-top: 12px; font-size: 12px;
     }
     #account {
-      border-radius: 8px; padding: 10px; margin-top: 12px; font-size: 12px;
+      border-radius: 8px; padding: 10px; margin-top: 14px; font-size: 12px;
       background: color-mix(in srgb, CanvasText 5%, Canvas);
+      display: flex; align-items: center; gap: 10px;
     }
+    #account .info { min-width: 0; flex: 1; }
     .email { font-weight: 600; overflow-wrap: anywhere; }
+    .dot { width: 8px; height: 8px; border-radius: 50%; background: #94a3b8; flex-shrink: 0; }
+    .dot.ok { background: #16a34a; }
+    .dot.warn { background: #ea580c; }
     .ok { color: #17823b; }
     .warn { color: #b34800; }
     .note { opacity: .7; font-size: 11px; margin-top: 14px; }
+    .divider { height: 1px; background: color-mix(in srgb, CanvasText 12%, Canvas); margin-top: 14px; }
   </style>
 </head>
 <body>
   <div class="brand">
-    <div class="brand-mark">N</div>
-    <h1>Ngotra Gemini Connector</h1>
+    <img src="icon.png" alt="Ngotra AI">
+    <div>
+      <h1>Ngotra Gemini Connector</h1>
+      <p class="tagline">Securely link your Gemini account</p>
+    </div>
   </div>
 
   <div id="account">
-    <div class="email" id="account-email">Checking your site account…</div>
-    <div id="account-status" class="note">Connection status: checking…</div>
+    <span class="dot" id="account-dot"></span>
+    <div class="info">
+      <div class="email" id="account-email">Checking your site account…</div>
+      <div id="account-status" class="note">Connection status: checking…</div>
+    </div>
   </div>
 
   <p>Sign in to Gemini, then verify to connect your account to Ngotra securely.</p>
   <button id="connect" type="button">Verify &amp; Connect</button>
   <p id="status">Ready.</p>
+  <div class="divider"></div>
   <p class="note">Your account session is sent encrypted and stored securely. If you face any issue, contact us.</p>
   <script src="popup.js"></script>
 </body>
