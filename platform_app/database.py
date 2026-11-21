@@ -98,6 +98,7 @@ def init_db():
         gemini_cookie_verified_at REAL DEFAULT 0.0,
         gemini_auth_user TEXT DEFAULT '',
         gemini_xsrf_token TEXT DEFAULT '',
+        gemini_auth_checked INTEGER DEFAULT 0,
         plan TEXT DEFAULT 'free',
         gemini_api_key TEXT DEFAULT '',
         gemini_api_key_at REAL DEFAULT 0.0,
@@ -183,6 +184,7 @@ def init_db():
         "gemini_cookie_verified_at": "ALTER TABLE users ADD COLUMN gemini_cookie_verified_at REAL DEFAULT 0.0",
         "gemini_auth_user": "ALTER TABLE users ADD COLUMN gemini_auth_user TEXT DEFAULT ''",
         "gemini_xsrf_token": "ALTER TABLE users ADD COLUMN gemini_xsrf_token TEXT DEFAULT ''",
+        "gemini_auth_checked": "ALTER TABLE users ADD COLUMN gemini_auth_checked INTEGER DEFAULT 0",
         "plan": "ALTER TABLE users ADD COLUMN plan TEXT DEFAULT 'free'",
         "gemini_api_key": "ALTER TABLE users ADD COLUMN gemini_api_key TEXT DEFAULT ''",
         "gemini_api_key_at": "ALTER TABLE users ADD COLUMN gemini_api_key_at REAL DEFAULT 0.0",
@@ -319,7 +321,8 @@ def set_user_cookie(user_id: int, cookie: str, verified: bool = False, auth_user
     conn = get_db_connection()
     conn.execute(
         "UPDATE users SET gemini_cookie = ?, gemini_cookie_at = ?, "
-        "gemini_cookie_verified_at = ?, gemini_auth_user = ?, gemini_xsrf_token = ? WHERE id = ?",
+        "gemini_cookie_verified_at = ?, gemini_auth_user = ?, gemini_xsrf_token = ?, "
+        "gemini_auth_checked = 1 WHERE id = ?",
         (encrypt_cookie(cookie.strip()), now, now if verified else 0.0,
          (auth_user or "").strip(), (xsrf_token or "").strip(), user_id),
     )
@@ -407,7 +410,8 @@ def clear_user_cookie(user_id: int) -> None:
     conn = get_db_connection()
     conn.execute(
         "UPDATE users SET gemini_cookie = '', gemini_cookie_at = 0, "
-        "gemini_cookie_verified_at = 0, gemini_auth_user = '', gemini_xsrf_token = '' WHERE id = ?",
+        "gemini_cookie_verified_at = 0, gemini_auth_user = '', gemini_xsrf_token = '', "
+        "gemini_auth_checked = 0 WHERE id = ?",
         (user_id,),
     )
     conn.commit()
