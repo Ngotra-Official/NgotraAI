@@ -27,11 +27,11 @@ THINK_MARK = "\u2063THINK\u2063"
 def classify_error(text: str, status: int = 0) -> str:
     """Classify an upstream response so we can cool down the right account."""
     low = (text or "").lower()
-    if status in (429, 503) or "rate limit" in low or "rate_limit" in low or "too many requests" in low:
+    if status in (429, 503) or "rate limit" in low or "rate_limit" in low or "too many requests" in low or "rate_limit_exceeded" in low:
         return "rate_limit"
     if "quota" in low or "billing" in low or "resource_exhausted" in low:
         return "quota"
-    if "sign in" in low or "unauthorized" in low or "authentication" in low or "session expired" in low:
+    if "sign in" in low or "unauthorized" in low or "authentication" in low or "session expired" in low or "permission_denied" in low:
         return "auth"
     if "barderrorinfo" in low:
         return "upstream"
@@ -411,12 +411,14 @@ def generate_stream(prompt: str, model_id: int, think_mode: int, file_refs: list
                 for chunk in resp.iter_text():
                     buf += chunk
                     if "BardErrorInfo" in buf:
-                        bard_err = re.search(r'BardErrorInfo\s*\[(\d+)\]', buf)
-                        if bard_err:
-                            cool(cookie, "upstream")
-                            raise RuntimeError(
-                                f"Gemini upstream rejected request: BardErrorInfo [{bard_err.group(1)}]"
-                            )
+                        bard_idx = buf.find("BardErrorInfo")
+                        m = re.search(r'(\d+)', buf[bard_idx:bard_idx + 60])
+                        code = m.group(1) if m else ""
+                        cool(cookie, "upstream")
+                        raise RuntimeError(
+                            f"Gemini upstream rejected request: BardErrorInfo"
+                            + (f" [{code}]" if code else "")
+                        )
                     reason = classify_error(buf[:4000])
                     if reason in ("rate_limit", "quota", "auth"):
                         cool(cookie, reason)
