@@ -1,0 +1,39 @@
+# Python
+__pycache__/
+*.pyc
+*.pyo
+.venv/
+venv/
+ENV/
+
+# Secrets & local config
+config.json
+cookie.txt
+cookie.json
+.env
+gemini-auth.json
+*.pem
+*.key
+
+# Databases (contain user data, hashed passwords, encrypted sessions)
+data/
+*.db
+*.db-wal
+*.db-shm
+*.sqlite
+*.sqlite3
+
+# Node build artifacts
+node_modules/
+gemini-cookie-sync-extension/dist/
+
+# Local backups / archives (may contain secrets)
+*.rar
+*.zip.bak
+*.backup
+
+# Editors / OS
+.idea
+.DS_Store
+Thumbs.db
+*.log

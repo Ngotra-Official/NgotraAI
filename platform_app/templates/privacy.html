@@ -1,0 +1,248 @@
+<!DOCTYPE html>
+<html lang="en" class="h-full bg-slate-50">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Privacy Policy | Ngotra AI - ngotra.site</title>
+  <meta name="description" content="How Ngotra AI collects, uses, protects, and handles your data.">
+  <link rel="icon" type="image/png" href="/static/logo.png?asset=favicon&amp;v=4">
+  <link rel="shortcut icon" type="image/png" href="/static/logo.png?asset=favicon&amp;v=4">
+  <script src="https://cdn.tailwindcss.com"></script>
+  <script>
+    tailwind.config = {
+      theme: {
+        extend: {
+          colors: {
+            brand: { 50:'#eef2ff', 100:'#e0e7ff', 500:'#6366f1', 600:'#4f46e5', 700:'#4338ca' }
+          }
+        }
+      }
+    }
+  </script>
+  <script src="https://unpkg.com/lucide@latest"></script>
+  <style>
+    @import url('https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap');
+    body { font-family: Inter, -apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif; }
+    code, pre, .font-mono { font-family: ui-monospace, SFMono-Regular, Menlo, Consolas, monospace; }
+    [class*="bg-gradient-to-"] { background-image: none !important; }
+    .animate-pulse, .animate-spin, .animate-bounce { animation: none !important; }
+    .rounded-2xl { border-radius: 0.625rem !important; }
+    .rounded-xl { border-radius: 0.5rem !important; }
+  </style>
+</head>
+<body class="min-h-full flex flex-col text-slate-800 antialiased bg-slate-50">
+
+  <!-- Header -->
+  <header class="bg-white border-b border-slate-200">
+    <div class="max-w-4xl mx-auto px-4 sm:px-6 h-16 flex items-center justify-between">
+      <a href="/" class="flex items-center gap-2.5">
+        <img src="/static/logo.png?asset=mark&amp;v=4" alt="" class="h-8 w-8 object-contain flex-shrink-0">
+        <span class="text-sm font-semibold text-slate-900">Ngotra <span class="text-slate-500">AI</span></span>
+      </a>
+      <a href="/" class="text-xs font-medium text-slate-600 hover:text-slate-900">← Back to home</a>
+    </div>
+  </header>
+
+  <main class="flex-1">
+    <div class="max-w-4xl mx-auto px-4 sm:px-6 py-12 sm:py-16">
+      <div class="mb-10">
+        <div class="text-xs font-medium text-slate-500 uppercase tracking-wider mb-2">Legal</div>
+        <h1 class="text-3xl sm:text-4xl font-semibold text-slate-900 tracking-tight">Privacy Policy</h1>
+        <p class="text-sm text-slate-500 mt-3">Last updated: <span id="pp-updated">November 2026</span></p>
+        <p class="text-sm text-slate-600 mt-5 leading-relaxed">
+          This Privacy Policy explains what information Ngotra AI ("Ngotra", "we", "us") collects when you use
+          our website at <strong>ngotra.site</strong>, our developer dashboard, and our OpenAI-compatible API gateway
+          (collectively, the "Service"). We are committed to protecting your privacy and handling your data transparently.
+        </p>
+      </div>
+
+      <!-- Summary box -->
+      <div class="bg-white rounded-lg border border-slate-200 p-6 mb-10">
+        <h2 class="text-sm font-semibold text-slate-900 mb-4 flex items-center gap-2">
+          <i data-lucide="shield-check" class="w-4 h-4 text-slate-500"></i> At a glance
+        </h2>
+        <ul class="space-y-2 text-sm text-slate-600 leading-relaxed">
+          <li class="flex gap-2"><span class="text-slate-400">•</span> We collect only what's needed to run accounts, usage billing, and the API gateway.</li>
+          <li class="flex gap-2"><span class="text-slate-400">•</span> If you connect a Gemini account, the session is encrypted at rest and used only for your requests.</li>
+          <li class="flex gap-2"><span class="text-slate-400">•</span> We never sell your personal data.</li>
+          <li class="flex gap-2"><span class="text-slate-400">•</span> You can request deletion of your account and data at any time.</li>
+        </ul>
+      </div>
+
+      <div class="space-y-10 text-sm text-slate-600 leading-relaxed">
+
+        <section>
+          <h2 class="text-lg font-semibold text-slate-900 mb-3">1. Information We Collect</h2>
+          <p class="mb-3">We collect the following types of information:</p>
+          <ul class="space-y-2 list-disc list-inside">
+            <li><strong class="text-slate-800">Account information:</strong> email address, password hash, account role, and registration date when you create an account.</li>
+            <li><strong class="text-slate-800">API keys &amp; tokens:</strong> generated API keys, token balance, token grants, and token usage used to operate the service.</li>
+            <li><strong class="text-slate-800">Usage logs:</strong> request endpoint, model used, status code, response time, estimated token count, and IP address associated with API requests.</li>
+            <li><strong class="text-slate-800">Connected Gemini account:</strong> if you choose to connect your Google/Gemini account through our optional connector, your Gemini session credentials are stored encrypted and used only to route your API requests.</li>
+            <li><strong class="text-slate-800">Site settings &amp; preferences:</strong> configuration stored in your browser session (such as a login token in an HTTP-only cookie).</li>
+          </ul>
+        </section>
+
+        <section>
+          <h2 class="text-lg font-semibold text-slate-900 mb-3">2. How We Use Your Information</h2>
+          <p>We use the information we collect to:</p>
+          <ul class="space-y-2 list-disc list-inside mt-3">
+            <li>Create and maintain your account, authenticate you, and secure access to the dashboard.</li>
+            <li>Operate the API gateway, enforce token balances, and measure usage.</li>
+            <li>Route your requests to Gemini when you have connected your own account.</li>
+            <li>Detect abuse, prevent fraud, and keep the Service reliable and secure.</li>
+            <li>Communicate important service updates and respond to your support requests.</li>
+          </ul>
+          <p class="mt-3">We do <strong class="text-slate-800">not</strong> use your personal data for targeted advertising or sell it to third parties.</p>
+        </section>
+
+        <section>
+          <h2 class="text-lg font-semibold text-slate-900 mb-3">3. Connected Gemini Accounts</h2>
+          <p>
+            Connecting your Gemini account is entirely optional. If you use our browser connector, it reads your
+            signed-in Gemini session from your browser with your permission and sends it to our servers. The session
+            is encrypted at rest (Fernet encryption) and is used only to make Gemini API requests on your behalf.
+            Your API access is blocked until a working connection is verified.
+          </p>
+          <p class="mt-3">
+            You can disconnect at any time from Dashboard → Settings. Disconnecting removes the stored session and
+            immediately stops API access for your account. A Gemini session grants access to your Google account;
+            only connect an account you are comfortable using with this Service.
+          </p>
+        </section>
+
+        <section>
+          <h2 class="text-lg font-semibold text-slate-900 mb-3">4. Cookies &amp; Local Storage</h2>
+          <p>
+            We use a single HTTP-only session cookie to keep you signed in to the dashboard. This cookie is essential
+            for authentication and cannot be used for tracking. Our sponsored/ad partners (Adsterra) and analytics may
+            set their own cookies when you view ads or visit embedded content; those are governed by their own privacy
+            policies. You can control cookies through your browser settings.
+          </p>
+        </section>
+
+        <section>
+          <h2 class="text-lg font-semibold text-slate-900 mb-3">5. Third-Party Services</h2>
+          <p>The Service interacts with third parties to function:</p>
+          <ul class="space-y-2 list-disc list-inside mt-3">
+            <li><strong class="text-slate-800">Google / Gemini:</strong> when you connect an account, requests are sent to Google's servers to generate responses. Google's Privacy Policy applies to that interaction.</li>
+            <li><strong class="text-slate-800">Adsterra:</strong> we display sponsored content to fund free access. Ad interactions are handled by Adsterra and subject to their policies.</li>
+            <li><strong class="text-slate-800">Hosting &amp; infrastructure:</strong> the Service is hosted on servers that store the data described above.</li>
+          </ul>
+          <p class="mt-3">We are not responsible for the privacy practices of third-party services.</p>
+        </section>
+
+        <section>
+          <h2 class="text-lg font-semibold text-slate-900 mb-3">6. Data Retention</h2>
+          <p>
+            Account data is kept while your account is active. Usage logs are retained for a limited period (typically
+            30 days) for security and troubleshooting, then removed. API keys remain active until you revoke them.
+            You may request deletion of your account and associated data at any time (see Contact).
+          </p>
+        </section>
+
+        <section>
+          <h2 class="text-lg font-semibold text-slate-900 mb-3">7. Data Security</h2>
+          <p>
+            We use reasonable technical and organizational measures to protect your information, including encrypted
+            storage of connected session credentials, HTTP-only authentication cookies, and access controls. No method
+            of transmission or storage is 100% secure, so we cannot guarantee absolute security. If you believe your
+            account has been compromised, contact us immediately.
+          </p>
+        </section>
+
+        <section>
+          <h2 class="text-lg font-semibold text-slate-900 mb-3">8. Your Rights</h2>
+          <p>Depending on your location, you may have the right to:</p>
+          <ul class="space-y-2 list-disc list-inside mt-3">
+            <li>Access a copy of the personal data we hold about you.</li>
+            <li>Correct inaccurate information.</li>
+            <li>Request deletion of your account and personal data.</li>
+            <li>Revoke API keys and disconnect connected accounts at any time.</li>
+            <li>Withdraw consent where consent was the basis for processing.</li>
+          </ul>
+          <p class="mt-3">To exercise these rights, please contact us using the details below.</p>
+        </section>
+
+        <section>
+          <h2 class="text-lg font-semibold text-slate-900 mb-3">9. Children</h2>
+          <p>
+            The Service is not intended for children under 13 (or the minimum age in your jurisdiction). We do not
+            knowingly collect personal data from children. If you believe a child has provided us data, contact us and
+            we will remove it.
+          </p>
+        </section>
+
+        <section>
+          <h2 class="text-lg font-semibold text-slate-900 mb-3">10. Changes to This Policy</h2>
+          <p>
+            We may update this Privacy Policy from time to time to reflect changes to the Service or legal requirements.
+            Updates will be posted on this page with a revised "Last updated" date. We encourage you to review it
+            periodically.
+          </p>
+        </section>
+
+        <section id="contact">
+          <h2 class="text-lg font-semibold text-slate-900 mb-3">11. Contact Us</h2>
+          <p>
+            If you have questions, concerns, or requests about this Privacy Policy or your data, please reach out through
+            our official community channels:
+          </p>
+          <div class="mt-4 flex flex-wrap gap-3">
+            <a id="pp-discord" href="https://discord.gg/ngotra" target="_blank" class="inline-flex items-center gap-2 px-4 py-2 text-xs font-medium text-white bg-slate-900 hover:bg-slate-800 rounded-md transition">
+              <svg class="w-4 h-4 fill-current flex-shrink-0" viewBox="0 0 24 24" aria-hidden="true"><path d="M20.317 4.37a19.791 19.791 0 0 0-4.885-1.515.074.074 0 0 0-.079.037c-.21.375-.444.864-.608 1.25a18.27 18.27 0 0 0-5.487 0 12.64 12.64 0 0 0-.617-1.25.077.077 0 0 0-.079-.037A19.736 19.736 0 0 0 3.677 4.37a.07.07 0 0 0-.032.027C.533 9.046-.32 13.58.099 18.057a.082.082 0 0 0 .031.057 19.9 19.9 0 0 0 5.993 3.03.078.078 0 0 0 .084-.028c.462-.63.874-1.295 1.226-1.994.021-.041.001-.09-.041-.106a13.107 13.107 0 0 1-1.872-.892.077.077 0 0 1-.008-.128 10.2 10.2 0 0 0 .372-.292.074.074 0 0 1 .077-.01c3.929 1.793 8.18 1.793 12.061 0a.074.074 0 0 1 .078.01c.12.098.246.198.373.292a.077.077 0 0 1-.006.127 12.299 12.299 0 0 1-1.873.894.077.077 0 0 0-.041.107c.36.698.772 1.362 1.225 1.993a.076.076 0 0 0 .084.028 19.839 19.839 0 0 0 6.002-3.03.077.077 0 0 0 .032-.054c.5-5.177-.838-9.674-3.549-13.66a.061.061 0 0 0-.031-.028zM8.02 15.33c-1.183 0-2.157-1.085-2.157-2.419 0-1.333.956-2.419 2.157-2.419 1.21 0 2.176 1.096 2.157 2.42 0 1.333-.956 2.418-2.157 2.418zm7.975 0c-1.183 0-2.157-1.085-2.157-2.419 0-1.333.955-2.419 2.157-2.419 1.21 0 2.176 1.096 2.157 2.42 0 1.333-.946 2.418-2.157 2.418z"/></svg>
+              Discord
+            </a>
+            <a id="pp-telegram" href="https://t.me/ngotra_ai" target="_blank" class="inline-flex items-center gap-2 px-4 py-2 text-xs font-medium text-slate-700 bg-white border border-slate-200 hover:bg-slate-50 rounded-md transition">
+              <svg class="w-4 h-4 fill-current flex-shrink-0" viewBox="0 0 24 24" aria-hidden="true"><path d="M12 2a10 10 0 1 0 0 20 10 10 0 0 0 0-20zm4.6 6.9-1.7 7.9c-.1.6-.5.8-1 .5l-2.8-2.1-1.4 1.3c-.2.2-.3.3-.6.3l.2-2.5 4.6-4.1c.2-.2 0-.3-.3-.1l-5.7 3.6-2.4-.7c-.5-.2-.5-.6.1-.8l9.3-3.6c.4-.1.8.1.7.8z"/></svg>
+              Telegram
+            </a>
+            <a id="pp-youtube" href="https://youtube.com/@ngotra_ai" target="_blank" class="inline-flex items-center gap-2 px-4 py-2 text-xs font-medium text-slate-700 bg-white border border-slate-200 hover:bg-slate-50 rounded-md transition">
+              <svg class="w-4 h-4 fill-current flex-shrink-0" viewBox="0 0 24 24" aria-hidden="true"><path d="M21.6 7.2a2.4 2.4 0 0 0-1.7-1.7C18.4 5 12 5 12 5s-6.4 0-7.9.5A2.4 2.4 0 0 0 2.4 7.2C2 8.7 2 12 2 12s0 3.3.4 4.8a2.4 2.4 0 0 0 1.7 1.7C5.6 19 12 19 12 19s6.4 0 7.9-.5a2.4 2.4 0 0 0 1.7-1.7c.4-1.5.4-4.8.4-4.8s0-3.3-.4-4.8zM10 15V9l5 3-5 3z"/></svg>
+              YouTube
+            </a>
+            <a id="pp-x" href="https://x.com/ngotra_ai" target="_blank" class="inline-flex items-center gap-2 px-4 py-2 text-xs font-medium text-slate-700 bg-white border border-slate-200 hover:bg-slate-50 rounded-md transition">
+              <svg class="w-4 h-4 fill-current flex-shrink-0" viewBox="0 0 24 24" aria-hidden="true"><path d="M18.9 2H22l-6.8 7.8L23.2 22h-6.3l-4.9-6.4L6.3 22H3.2l7.3-8.4L2.8 2h6.4l4.4 5.8L18.9 2zm-1.1 18h1.7L7.4 3.9H5.6L17.8 20z"/></svg>
+              X
+            </a>
+            <a id="pp-instagram" href="https://instagram.com/ngotra_ai" target="_blank" class="inline-flex items-center gap-2 px-4 py-2 text-xs font-medium text-slate-700 bg-white border border-slate-200 hover:bg-slate-50 rounded-md transition">
+              <svg class="w-4 h-4 fill-current flex-shrink-0" viewBox="0 0 24 24" aria-hidden="true"><path d="M12 2.2c3.2 0 3.6 0 4.9.1 1.2.1 1.8.3 2.2.4.6.2 1 .5 1.4.9.4.4.7.8.9 1.4.2.4.4 1 .4 2.2.1 1.3.1 1.7.1 4.8s0 3.6-.1 4.8c-.1 1.2-.3 1.8-.4 2.2-.2.6-.5 1-.9 1.4-.4.4-.8.7-1.4.9-.4.2-1 .4-2.2.4-1.3.1-1.7.1-4.9.1s-3.6 0-4.8-.1c-1.2-.1-1.8-.3-2.2-.4-.6-.2-1-.5-1.4-.9-.4-.4-.7-.8-.9-1.4-.2-.4-.4-1-.4-2.2-.1-1.3-.1-1.7-.1-4.8s0-3.6.1-4.8c.1-1.2.3-1.8.4-2.2.2-.6.5-1 .9-1.4.4-.4.8-.7 1.4-.9.4-.2 1-.4 2.2-.4 1.3-.1 1.7-.1 4.8-.1zM12 7.4a4.6 4.6 0 1 0 0 9.2 4.6 4.6 0 0 0 0-9.2zm0 7.6a3 3 0 1 1 0-6 3 3 0 0 1 0 6zm5.8-7.8a1.1 1.1 0 1 1-2.2 0 1.1 1.1 0 0 1 2.2 0z"/></svg>
+              Instagram
+            </a>
+          </div>
+          <p class="mt-4 text-xs text-slate-400">Ngotra AI · ngotra.site</p>
+        </section>
+
+      </div>
+    </div>
+  </main>
+
+  <!-- Footer -->
+  <footer class="bg-white border-t border-slate-200 py-8">
+    <div class="max-w-4xl mx-auto px-4 sm:px-6 flex flex-col sm:flex-row items-center justify-between gap-4">
+      <span class="text-xs text-slate-400">© 2026 ngotra.site. All rights reserved.</span>
+      <div class="flex items-center gap-4 text-slate-400">
+        <a id="footer-discord-link" href="https://discord.gg/ngotra" target="_blank" class="hover:text-slate-900 transition" title="Discord">
+          <svg class="w-4 h-4 fill-current" viewBox="0 0 24 24" aria-hidden="true"><path d="M20.317 4.37a19.791 19.791 0 0 0-4.885-1.515.074.074 0 0 0-.079.037c-.21.375-.444.864-.608 1.25a18.27 18.27 0 0 0-5.487 0 12.64 12.64 0 0 0-.617-1.25.077.077 0 0 0-.079-.037A19.736 19.736 0 0 0 3.677 4.37a.07.07 0 0 0-.032.027C.533 9.046-.32 13.58.099 18.057a.082.082 0 0 0 .031.057 19.9 19.9 0 0 0 5.993 3.03.078.078 0 0 0 .084-.028c.462-.63.874-1.295 1.226-1.994.021-.041.001-.09-.041-.106a13.107 13.107 0 0 1-1.872-.892.077.077 0 0 1-.008-.128 10.2 10.2 0 0 0 .372-.292.074.074 0 0 1 .077-.01c3.929 1.793 8.18 1.793 12.061 0a.074.074 0 0 1 .078.01c.12.098.246.198.373.292a.077.077 0 0 1-.006.127 12.299 12.299 0 0 1-1.873.894.077.077 0 0 0-.041.107c.36.698.772 1.362 1.225 1.993a.076.076 0 0 0 .084.028 19.839 19.839 0 0 0 6.002-3.03.077.077 0 0 0 .032-.054c.5-5.177-.838-9.674-3.549-13.66a.061.061 0 0 0-.031-.028zM8.02 15.33c-1.183 0-2.157-1.085-2.157-2.419 0-1.333.956-2.419 2.157-2.419 1.21 0 2.176 1.096 2.157 2.42 0 1.333-.956 2.418-2.157 2.418zm7.975 0c-1.183 0-2.157-1.085-2.157-2.419 0-1.333.955-2.419 2.157-2.419 1.21 0 2.176 1.096 2.157 2.42 0 1.333-.946 2.418-2.157 2.418z"/></svg>
+        </a>
+        <a id="footer-telegram-link" href="https://t.me/ngotra_ai" target="_blank" class="hover:text-slate-900 transition" title="Telegram">
+          <svg class="w-4 h-4 fill-current" viewBox="0 0 24 24" aria-hidden="true"><path d="M12 2a10 10 0 1 0 0 20 10 10 0 0 0 0-20zm4.6 6.9-1.7 7.9c-.1.6-.5.8-1 .5l-2.8-2.1-1.4 1.3c-.2.2-.3.3-.6.3l.2-2.5 4.6-4.1c.2-.2 0-.3-.3-.1l-5.7 3.6-2.4-.7c-.5-.2-.5-.6.1-.8l9.3-3.6c.4-.1.8.1.7.8z"/></svg>
+        </a>
+        <a id="footer-youtube-link" href="https://youtube.com/@ngotra_ai" target="_blank" class="hover:text-slate-900 transition" title="YouTube">
+          <svg class="w-4 h-4 fill-current" viewBox="0 0 24 24" aria-hidden="true"><path d="M21.6 7.2a2.4 2.4 0 0 0-1.7-1.7C18.4 5 12 5 12 5s-6.4 0-7.9.5A2.4 2.4 0 0 0 2.4 7.2C2 8.7 2 12 2 12s0 3.3.4 4.8a2.4 2.4 0 0 0 1.7 1.7C5.6 19 12 19 12 19s6.4 0 7.9-.5a2.4 2.4 0 0 0 1.7-1.7c.4-1.5.4-4.8.4-4.8s0-3.3-.4-4.8zM10 15V9l5 3-5 3z"/></svg>
+        </a>
+        <a id="footer-x-link" href="https://x.com/ngotra_ai" target="_blank" class="hover:text-slate-900 transition" title="X">
+          <svg class="w-4 h-4 fill-current" viewBox="0 0 24 24" aria-hidden="true"><path d="M18.9 2H22l-6.8 7.8L23.2 22h-6.3l-4.9-6.4L6.3 22H3.2l7.3-8.4L2.8 2h6.4l4.4 5.8L18.9 2zm-1.1 18h1.7L7.4 3.9H5.6L17.8 20z"/></svg>
+        </a>
+        <a id="footer-insta-link" href="https://instagram.com/ngotra_ai" target="_blank" class="hover:text-slate-900 transition" title="Instagram">
+          <svg class="w-4 h-4 fill-current" viewBox="0 0 24 24" aria-hidden="true"><path d="M12 2.2c3.2 0 3.6 0 4.9.1 1.2.1 1.8.3 2.2.4.6.2 1 .5 1.4.9.4.4.7.8.9 1.4.2.4.4 1 .4 2.2.1 1.3.1 1.7.1 4.8s0 3.6-.1 4.8c-.1 1.2-.3 1.8-.4 2.2-.2.6-.5 1-.9 1.4-.4.4-.8.7-1.4.9-.4.2-1 .4-2.2.4-1.3.1-1.7.1-4.9.1s-3.6 0-4.8-.1c-1.2-.1-1.8-.3-2.2-.4-.6-.2-1-.5-1.4-.9-.4-.4-.7-.8-.9-1.4-.2-.4-.4-1-.4-2.2-.1-1.3-.1-1.7-.1-4.8s0-3.6.1-4.8c.1-1.2.3-1.8.4-2.2.2-.6.5-1 .9-1.4.4-.4.8-.7 1.4-.9.4-.2 1-.4 2.2-.4 1.3-.1 1.7-.1 4.8-.1zM12 7.4a4.6 4.6 0 1 0 0 9.2 4.6 4.6 0 0 0 0-9.2zm0 7.6a3 3 0 1 1 0-6 3 3 0 0 1 0 6zm5.8-7.8a1.1 1.1 0 1 1-2.2 0 1.1 1.1 0 0 1 2.2 0z"/></svg>
+        </a>
+        <a href="/privacy" class="text-xs font-medium text-slate-500 hover:text-slate-900 ml-2">Privacy Policy</a>
+        <a href="/" class="text-xs font-medium text-slate-500 hover:text-slate-900">Home</a>
+      </div>
+    </div>
+  </footer>
+
+  <script>lucide.createIcons();</script>
+</body>
+</html>

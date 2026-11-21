@@ -1,0 +1,26 @@
+.git
+.idea
+.venv
+venv
+__pycache__
+*.pyc
+*.pyo
+config.json
+cookie.txt
+cookie.json
+gemini-auth.json
+.env
+*.pem
+*.key
+
+# Never bake user data or backups into images
+data/
+*.db
+*.db-wal
+*.db-shm
+*.rar
+*.backup
+
+# Node build deps (extension ZIP is pre-built and copied explicitly)
+node_modules/
+package-lock.json

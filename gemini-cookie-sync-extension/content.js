@@ -1,0 +1,15 @@
+// Announce the connector to the platform page and bridge one-click connects.
+window.__NGOTRA_GEMINI_CONNECTOR__ = true;
+
+document.addEventListener("ngotra-connect-request", () => {
+  chrome.runtime.sendMessage(
+    { type: "ngotra-connect", origin: location.origin },
+    (response) => {
+      document.dispatchEvent(new CustomEvent("ngotra-connect-result", {
+        detail: response || { ok: false, message: "No response from connector." },
+      }));
+    }
+  );
+});
+
+document.dispatchEvent(new CustomEvent("ngotra-connector-ready"));

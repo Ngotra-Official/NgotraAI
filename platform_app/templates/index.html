@@ -1,0 +1,558 @@
+<!DOCTYPE html>
+<html lang="en" class="h-full bg-slate-50">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Ngotra AI - High-Speed Gemini API Provider | ngotra.site</title>
+  <meta name="description" content="Free Gemini API with unlimited possibilities. Watch 3 ads to earn 500,000 tokens and use your key in any app, tool, or script. No subscription required.">
+  <link rel="icon" type="image/png" href="data:image/png;base64,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">
+  <link rel="shortcut icon" type="image/png" href="data:image/png;base64,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">
+  <!-- Tailwind CSS -->
+  <script src="https://cdn.tailwindcss.com"></script>
+  <script>
+    tailwind.config = {
+      theme: {
+        extend: {
+          colors: {
+            brand: {
+              50: '#eef2ff',
+              100: '#e0e7ff',
+              500: '#6366f1',
+              600: '#4f46e5',
+              700: '#4338ca',
+            }
+          }
+        }
+      }
+    }
+  </script>
+  <!-- Lucide Icons -->
+  <script src="https://unpkg.com/lucide@latest"></script>
+  <style>
+    @import url('https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap');
+    body { font-family: Inter, -apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif; }
+    code, pre, .font-mono { font-family: ui-monospace, SFMono-Regular, Menlo, Consolas, monospace; }
+
+    /* Calm, professional surface: no gradients, glows or decorative motion */
+    [class*="bg-gradient-to-"] { background-image: none !important; }
+    .bg-clip-text { color: #0f172a !important; -webkit-text-fill-color: #0f172a !important; }
+    .animate-pulse, .animate-spin, .animate-bounce { animation: none !important; }
+    .group:hover .group-hover\:scale-105 { transform: none !important; }
+    .shadow-lg, .shadow-xl, .shadow-md, [class*="shadow-indigo-"], [class*="shadow-emerald-"] { box-shadow: 0 1px 2px 0 rgb(15 23 42 / 0.06) !important; }
+    .ring-2, [class*="ring-indigo-"] { box-shadow: none !important; }
+    .rounded-2xl { border-radius: 0.625rem !important; }
+    .rounded-xl { border-radius: 0.5rem !important; }
+  </style>
+  <div id="adsterra-head-scripts"></div>
+</head>
+<body class="min-h-full flex flex-col text-slate-800 antialiased selection:bg-indigo-500 selection:text-white bg-slate-50">
+
+  <!-- Adsterra Popunder / Social Bar Injection -->
+  <div id="adsterra-popunder-slot"></div>
+  <div id="adsterra-socialbar-slot"></div>
+
+  <!-- Top Announcement Bar with Social Media Shortcuts -->
+  <div class="bg-slate-900 text-white text-xs font-medium py-2 px-4 flex flex-wrap items-center justify-between gap-2 border-b border-slate-800">
+    <div class="flex items-center gap-2 mx-auto sm:mx-0">
+      <span class="inline-flex items-center px-2 py-0.5 rounded text-[10px] font-medium bg-slate-700 text-slate-100">GEMINI 3.7</span>
+      <span>Gemini 3.7 Flash & Deep Thinking Models Live on <strong>ngotra.site</strong></span>
+      <span class="hidden md:inline text-slate-400">• OpenAI Compatible • Watch 3 Ads = 500k Tokens</span>
+    </div>
+
+    <!-- Social Media Fast Icons -->
+    <div class="flex items-center gap-3 mx-auto sm:mx-0">
+      <span class="text-slate-400 text-[11px] hidden sm:inline">Join Community:</span>
+      <a id="top-discord-link" href="https://discord.gg/ngotra" target="_blank" class="text-slate-300 hover:text-indigo-400 transition" title="Discord Community">
+          <svg class="w-4 h-4 fill-current flex-shrink-0" viewBox="0 0 24 24" aria-hidden="true"><path d="M20.317 4.37a19.791 19.791 0 0 0-4.885-1.515.074.074 0 0 0-.079.037c-.21.375-.444.864-.608 1.25a18.27 18.27 0 0 0-5.487 0 12.64 12.64 0 0 0-.617-1.25.077.077 0 0 0-.079-.037A19.736 19.736 0 0 0 3.677 4.37a.07.07 0 0 0-.032.027C.533 9.046-.32 13.58.099 18.057a.082.082 0 0 0 .031.057 19.9 19.9 0 0 0 5.993 3.03.078.078 0 0 0 .084-.028c.462-.63.874-1.295 1.226-1.994.021-.041.001-.09-.041-.106a13.107 13.107 0 0 1-1.872-.892.077.077 0 0 1-.008-.128 10.2 10.2 0 0 0 .372-.292.074.074 0 0 1 .077-.01c3.929 1.793 8.18 1.793 12.061 0a.074.074 0 0 1 .078.01c.12.098.246.198.373.292a.077.077 0 0 1-.006.127 12.299 12.299 0 0 1-1.873.894.077.077 0 0 0-.041.107c.36.698.772 1.362 1.225 1.993a.076.076 0 0 0 .084.028 19.839 19.839 0 0 0 6.002-3.03.077.077 0 0 0 .032-.054c.5-5.177-.838-9.674-3.549-13.66a.061.061 0 0 0-.031-.028zM8.02 15.33c-1.183 0-2.157-1.085-2.157-2.419 0-1.333.956-2.419 2.157-2.419 1.21 0 2.176 1.096 2.157 2.42 0 1.333-.956 2.418-2.157 2.418zm7.975 0c-1.183 0-2.157-1.085-2.157-2.419 0-1.333.955-2.419 2.157-2.419 1.21 0 2.176 1.096 2.157 2.42 0 1.333-.946 2.418-2.157 2.418z"/></svg>
+      </a>
+      <a id="top-telegram-link" href="https://t.me/ngotra_ai" target="_blank" class="text-slate-300 hover:text-sky-400 transition" title="Telegram Channel">
+          <svg class="w-4 h-4 fill-current flex-shrink-0" viewBox="0 0 24 24" aria-hidden="true"><path d="M12 2a10 10 0 1 0 0 20 10 10 0 0 0 0-20zm4.6 6.9-1.7 7.9c-.1.6-.5.8-1 .5l-2.8-2.1-1.4 1.3c-.2.2-.3.3-.6.3l.2-2.5 4.6-4.1c.2-.2 0-.3-.3-.1l-5.7 3.6-2.4-.7c-.5-.2-.5-.6.1-.8l9.3-3.6c.4-.1.8.1.7.8z"/></svg>
+      </a>
+      <a id="top-youtube-link" href="https://youtube.com/@ngotra_ai" target="_blank" class="text-slate-300 hover:text-red-500 transition" title="YouTube Channel">
+          <svg class="w-4 h-4 fill-current flex-shrink-0" viewBox="0 0 24 24" aria-hidden="true"><path d="M21.6 7.2a2.4 2.4 0 0 0-1.7-1.7C18.4 5 12 5 12 5s-6.4 0-7.9.5A2.4 2.4 0 0 0 2.4 7.2C2 8.7 2 12 2 12s0 3.3.4 4.8a2.4 2.4 0 0 0 1.7 1.7C5.6 19 12 19 12 19s6.4 0 7.9-.5a2.4 2.4 0 0 0 1.7-1.7c.4-1.5.4-4.8.4-4.8s0-3.3-.4-4.8zM10 15V9l5 3-5 3z"/></svg>
+      </a>
+      <a id="top-insta-link" href="https://instagram.com/ngotra_ai" target="_blank" class="text-slate-300 hover:text-pink-400 transition" title="Instagram">
+          <svg class="w-4 h-4 fill-current flex-shrink-0" viewBox="0 0 24 24" aria-hidden="true"><path d="M12 2.2c3.2 0 3.6 0 4.9.1 1.2.1 1.8.3 2.2.4.6.2 1 .5 1.4.9.4.4.7.8.9 1.4.2.4.4 1 .4 2.2.1 1.3.1 1.7.1 4.8s0 3.6-.1 4.8c-.1 1.2-.3 1.8-.4 2.2-.2.6-.5 1-.9 1.4-.4.4-.8.7-1.4.9-.4.2-1 .4-2.2.4-1.3.1-1.7.1-4.9.1s-3.6 0-4.8-.1c-1.2-.1-1.8-.3-2.2-.4-.6-.2-1-.5-1.4-.9-.4-.4-.7-.8-.9-1.4-.2-.4-.4-1-.4-2.2-.1-1.3-.1-1.7-.1-4.8s0-3.6.1-4.8c.1-1.2.3-1.8.4-2.2.2-.6.5-1 .9-1.4.4-.4.8-.7 1.4-.9.4-.2 1-.4 2.2-.4 1.3-.1 1.7-.1 4.8-.1zM12 7.4a4.6 4.6 0 1 0 0 9.2 4.6 4.6 0 0 0 0-9.2zm0 7.6a3 3 0 1 1 0-6 3 3 0 0 1 0 6zm5.8-7.8a1.1 1.1 0 1 1-2.2 0 1.1 1.1 0 0 1 2.2 0z"/></svg>
+      </a>
+      <a id="top-x-link" href="https://x.com/ngotra_ai" target="_blank" class="text-slate-300 hover:text-white transition" title="X (Twitter)">
+          <svg class="w-4 h-4 fill-current flex-shrink-0" viewBox="0 0 24 24" aria-hidden="true"><path d="M18.9 2H22l-6.8 7.8L23.2 22h-6.3l-4.9-6.4L6.3 22H3.2l7.3-8.4L2.8 2h6.4l4.4 5.8L18.9 2zm-1.1 18h1.7L7.4 3.9H5.6L17.8 20z"/></svg>
+      </a>
+    </div>
+  </div>
+
+  <!-- Header / Navigation -->
+  <header class="sticky top-0 z-40 bg-white/95 backdrop-blur border-b border-slate-200 shadow-sm">
+    <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 h-16 flex items-center justify-between">
+      <div class="flex items-center gap-3">
+        <a href="/" class="flex items-center gap-2.5">
+          <img src="data:image/png;base64,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" alt="" class="h-8 w-8 object-contain flex-shrink-0">
+          <span class="text-base font-semibold text-slate-900">Ngotra <span class="text-slate-500">AI</span></span>
+        </a>
+      </div>
+
+      <nav class="hidden md:flex items-center gap-7 text-xs font-medium text-slate-600">
+        <a href="#models" class="hover:text-slate-900 transition">Models</a>
+        <a href="#how-it-works" class="hover:text-slate-900 transition">How It Works</a>
+        <a href="#community" class="hover:text-slate-900 transition flex items-center gap-1 text-slate-900">
+          <i data-lucide="users" class="w-3.5 h-3.5"></i> Community
+        </a>
+        <a href="#integration" class="hover:text-slate-900 transition">Get Started</a>
+        <a href="/dashboard/playground" class="hover:text-slate-900 transition">Playground</a>
+      </nav>
+
+      <div class="flex items-center gap-3" id="auth-nav-container">
+        <button onclick="openAuthModal('login')" class="px-3.5 py-2 text-xs font-medium text-slate-600 hover:text-slate-900 transition">
+          Sign In
+        </button>
+        <button onclick="openAuthModal('register')" class="px-4 py-2 text-xs font-medium text-white bg-slate-900 hover:bg-slate-800 rounded-md transition flex items-center gap-1.5">
+          <span>Get Free Key</span>
+          <i data-lucide="arrow-right" class="w-3.5 h-3.5"></i>
+        </button>
+      </div>
+    </div>
+  </header>
+
+  <!-- Top Adsterra Banner Slot (728x90) -->
+  <div id="banner-728x90-container" class="max-w-4xl mx-auto mt-4 px-4 hidden">
+    <div id="banner-728x90-content" class="overflow-hidden flex justify-center items-center"></div>
+  </div>
+
+  <!-- Hero Section -->
+  <main class="flex-1">
+    <section class="relative pt-14 pb-20 overflow-hidden">
+      <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 text-center relative z-10">
+        
+        <div class="inline-flex items-center gap-2 px-3 py-1.5 rounded-md text-xs font-medium bg-slate-100 border border-slate-200 text-slate-600 mb-6">
+          <span class="w-2 h-2 rounded-full bg-slate-400"></span>
+          <span>Free Gemini API &middot; Watch Ads &middot; Earn Tokens</span>
+        </div>
+
+        <h1 class="text-4xl sm:text-5xl lg:text-6xl font-extrabold text-slate-900 tracking-tight max-w-4xl mx-auto leading-tight sm:leading-tight">
+          Free high-speed Gemini API <br><span>Watch ads, earn tokens, build anything</span>
+        </h1>
+
+        <p class="mt-6 text-base sm:text-lg text-slate-600 max-w-2xl mx-auto leading-relaxed">
+          Use our free Gemini API in any app or script (<code class="text-slate-800 bg-slate-100 border border-slate-200 px-2 py-0.5 rounded font-mono text-sm">https://ngotra.site/v1</code>). Watch 3 quick ads to add 500,000 tokens to your balance, spend them on high-speed requests, and earn more every hour. No subscription, no credit card.
+        </p>
+
+        <!-- CTA Buttons -->
+        <div class="mt-8 flex flex-col sm:flex-row items-center justify-center gap-4">
+          <button onclick="openAuthModal('register')" class="w-full sm:w-auto px-7 py-3 text-sm font-medium text-white bg-slate-900 hover:bg-slate-800 rounded-md transition flex items-center justify-center gap-2">
+            <i data-lucide="key" class="w-4 h-4"></i>
+            <span>Create Account & Get API Key</span>
+          </button>
+          <a href="/dashboard/playground" class="w-full sm:w-auto px-6 py-3 text-sm font-medium text-slate-700 bg-white border border-slate-200 hover:bg-slate-50 rounded-md transition flex items-center justify-center gap-2">
+            <i data-lucide="play" class="w-4 h-4 text-slate-500"></i>
+            <span>Open AI Playground</span>
+          </a>
+        </div>
+
+        <!-- Live Metrics Cards -->
+        <div class="mt-12 grid grid-cols-2 md:grid-cols-4 gap-4 max-w-3xl mx-auto">
+          <div class="bg-white p-4 rounded-2xl border border-slate-200 shadow-sm text-center">
+            <div class="text-2xl font-semibold text-slate-900">0.00s</div>
+            <div class="text-xs font-semibold text-slate-400 mt-1">First-Token Latency</div>
+          </div>
+          <div class="bg-white p-4 rounded-2xl border border-slate-200 shadow-sm text-center">
+            <div class="text-2xl font-semibold text-slate-900">3 Ads = 500k</div>
+            <div class="text-xs font-semibold text-slate-400 mt-1">Tokens Added Per Cycle</div>
+          </div>
+          <div class="bg-white p-4 rounded-2xl border border-slate-200 shadow-sm text-center">
+            <div class="text-2xl font-semibold text-slate-900">100%</div>
+            <div class="text-xs font-semibold text-slate-400 mt-1">OpenAI Compatible</div>
+          </div>
+          <div class="bg-white p-4 rounded-2xl border border-slate-200 shadow-sm text-center">
+            <div class="text-2xl font-semibold text-slate-900">9+ Models</div>
+            <div class="text-xs font-semibold text-slate-400 mt-1">Flash, Thinking & Pro</div>
+          </div>
+        </div>
+      </div>
+    </section>
+
+    <!-- ========================================================================= -->
+    <!-- SOCIAL MEDIA COMMUNITY SECTION (DISCORD, TELEGRAM, YOUTUBE, INSTA, X) -->
+    <!-- ========================================================================= -->
+    <section id="community" class="py-16 bg-slate-50 border-y border-slate-200">
+      <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+        <div class="text-center max-w-3xl mx-auto mb-12">
+          <div class="inline-flex items-center gap-1.5 px-3 py-1 rounded-md text-xs font-medium bg-slate-100 text-slate-600 border border-slate-200 mb-2">
+            <i data-lucide="users" class="w-3.5 h-3.5"></i>
+            <span>GLOBAL DEVELOPER NETWORK</span>
+          </div>
+          <h2 class="text-3xl font-semibold text-slate-900 tracking-tight">Join Our Official Community</h2>
+          <p class="text-slate-600 text-sm mt-3">Connect with 5,000+ developers, get instant support, VIP coupon drops, model benchmarks, and API guides.</p>
+        </div>
+
+        <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-5 gap-4">
+          
+          <!-- Card 1: Discord -->
+          <a id="card-discord-link" href="https://discord.gg/ngotra" target="_blank" class="bg-white hover:bg-slate-50 border border-slate-200 rounded-2xl p-5 shadow-sm hover:border-slate-300 transition flex flex-col justify-between group">
+            <div>
+              <div class="w-12 h-12 rounded-xl bg-slate-100 text-slate-600 flex items-center justify-center mb-4">
+                <svg class="w-4 h-4 fill-current flex-shrink-0" viewBox="0 0 24 24" aria-hidden="true"><path d="M20.317 4.37a19.791 19.791 0 0 0-4.885-1.515.074.074 0 0 0-.079.037c-.21.375-.444.864-.608 1.25a18.27 18.27 0 0 0-5.487 0 12.64 12.64 0 0 0-.617-1.25.077.077 0 0 0-.079-.037A19.736 19.736 0 0 0 3.677 4.37a.07.07 0 0 0-.032.027C.533 9.046-.32 13.58.099 18.057a.082.082 0 0 0 .031.057 19.9 19.9 0 0 0 5.993 3.03.078.078 0 0 0 .084-.028c.462-.63.874-1.295 1.226-1.994.021-.041.001-.09-.041-.106a13.107 13.107 0 0 1-1.872-.892.077.077 0 0 1-.008-.128 10.2 10.2 0 0 0 .372-.292.074.074 0 0 1 .077-.01c3.929 1.793 8.18 1.793 12.061 0a.074.074 0 0 1 .078.01c.12.098.246.198.373.292a.077.077 0 0 1-.006.127 12.299 12.299 0 0 1-1.873.894.077.077 0 0 0-.041.107c.36.698.772 1.362 1.225 1.993a.076.076 0 0 0 .084.028 19.839 19.839 0 0 0 6.002-3.03.077.077 0 0 0 .032-.054c.5-5.177-.838-9.674-3.549-13.66a.061.061 0 0 0-.031-.028zM8.02 15.33c-1.183 0-2.157-1.085-2.157-2.419 0-1.333.956-2.419 2.157-2.419 1.21 0 2.176 1.096 2.157 2.42 0 1.333-.956 2.418-2.157 2.418zm7.975 0c-1.183 0-2.157-1.085-2.157-2.419 0-1.333.955-2.419 2.157-2.419 1.21 0 2.176 1.096 2.157 2.42 0 1.333-.946 2.418-2.157 2.418z"/></svg>
+              </div>
+              <h3 class="font-bold text-slate-900 text-base">Discord Server</h3>
+              <p class="text-xs text-slate-500 mt-1 leading-relaxed">24/7 dev chat, setup help & examples.</p>
+            </div>
+            <div class="mt-4 pt-3 border-t border-slate-100 flex items-center justify-between text-xs font-medium text-slate-500">
+              <span>Join Server</span>
+              <i data-lucide="external-link" class="w-3.5 h-3.5"></i>
+            </div>
+          </a>
+
+          <!-- Card 2: Telegram -->
+          <a id="card-telegram-link" href="https://t.me/ngotra_ai" target="_blank" class="bg-white hover:bg-slate-50 border border-slate-200 rounded-2xl p-5 shadow-sm hover:border-slate-300 transition flex flex-col justify-between group">
+            <div>
+              <div class="w-12 h-12 rounded-xl bg-slate-100 text-slate-600 flex items-center justify-center mb-4">
+                <svg class="w-4 h-4 fill-current flex-shrink-0" viewBox="0 0 24 24" aria-hidden="true"><path d="M12 2a10 10 0 1 0 0 20 10 10 0 0 0 0-20zm4.6 6.9-1.7 7.9c-.1.6-.5.8-1 .5l-2.8-2.1-1.4 1.3c-.2.2-.3.3-.6.3l.2-2.5 4.6-4.1c.2-.2 0-.3-.3-.1l-5.7 3.6-2.4-.7c-.5-.2-.5-.6.1-.8l9.3-3.6c.4-.1.8.1.7.8z"/></svg>
+              </div>
+              <h3 class="font-bold text-slate-900 text-base">Telegram Channel</h3>
+              <p class="text-xs text-slate-500 mt-1 leading-relaxed">Instant downtime alerts, free VIP pass drops & updates.</p>
+            </div>
+            <div class="mt-4 pt-3 border-t border-slate-100 flex items-center justify-between text-xs font-medium text-slate-500">
+              <span>Subscribe</span>
+              <i data-lucide="external-link" class="w-3.5 h-3.5"></i>
+            </div>
+          </a>
+
+          <!-- Card 3: YouTube -->
+          <a id="card-youtube-link" href="https://youtube.com/@ngotra_ai" target="_blank" class="bg-white hover:bg-slate-50 border border-slate-200 rounded-2xl p-5 shadow-sm hover:border-slate-300 transition flex flex-col justify-between group">
+            <div>
+              <div class="w-12 h-12 rounded-xl bg-slate-100 text-slate-600 flex items-center justify-center mb-4">
+                <svg class="w-4 h-4 fill-current flex-shrink-0" viewBox="0 0 24 24" aria-hidden="true"><path d="M21.6 7.2a2.4 2.4 0 0 0-1.7-1.7C18.4 5 12 5 12 5s-6.4 0-7.9.5A2.4 2.4 0 0 0 2.4 7.2C2 8.7 2 12 2 12s0 3.3.4 4.8a2.4 2.4 0 0 0 1.7 1.7C5.6 19 12 19 12 19s6.4 0 7.9-.5a2.4 2.4 0 0 0 1.7-1.7c.4-1.5.4-4.8.4-4.8s0-3.3-.4-4.8zM10 15V9l5 3-5 3z"/></svg>
+              </div>
+              <h3 class="font-bold text-slate-900 text-base">YouTube Tutorials</h3>
+              <p class="text-xs text-slate-500 mt-1 leading-relaxed">Full video walkthroughs and API guides.</p>
+            </div>
+            <div class="mt-4 pt-3 border-t border-slate-100 flex items-center justify-between text-xs font-medium text-slate-500">
+              <span>Watch Videos</span>
+              <i data-lucide="external-link" class="w-3.5 h-3.5"></i>
+            </div>
+          </a>
+
+          <!-- Card 4: Instagram -->
+          <a id="card-insta-link" href="https://instagram.com/ngotra_ai" target="_blank" class="bg-white hover:bg-slate-50 border border-slate-200 rounded-2xl p-5 shadow-sm hover:border-slate-300 transition flex flex-col justify-between group">
+            <div>
+              <div class="w-12 h-12 rounded-xl bg-slate-100 text-slate-600 flex items-center justify-center mb-4">
+                <svg class="w-4 h-4 fill-current flex-shrink-0" viewBox="0 0 24 24" aria-hidden="true"><path d="M12 2.2c3.2 0 3.6 0 4.9.1 1.2.1 1.8.3 2.2.4.6.2 1 .5 1.4.9.4.4.7.8.9 1.4.2.4.4 1 .4 2.2.1 1.3.1 1.7.1 4.8s0 3.6-.1 4.8c-.1 1.2-.3 1.8-.4 2.2-.2.6-.5 1-.9 1.4-.4.4-.8.7-1.4.9-.4.2-1 .4-2.2.4-1.3.1-1.7.1-4.9.1s-3.6 0-4.8-.1c-1.2-.1-1.8-.3-2.2-.4-.6-.2-1-.5-1.4-.9-.4-.4-.7-.8-.9-1.4-.2-.4-.4-1-.4-2.2-.1-1.3-.1-1.7-.1-4.8s0-3.6.1-4.8c.1-1.2.3-1.8.4-2.2.2-.6.5-1 .9-1.4.4-.4.8-.7 1.4-.9.4-.2 1-.4 2.2-.4 1.3-.1 1.7-.1 4.8-.1zM12 7.4a4.6 4.6 0 1 0 0 9.2 4.6 4.6 0 0 0 0-9.2zm0 7.6a3 3 0 1 1 0-6 3 3 0 0 1 0 6zm5.8-7.8a1.1 1.1 0 1 1-2.2 0 1.1 1.1 0 0 1 2.2 0z"/></svg>
+              </div>
+              <h3 class="font-bold text-slate-900 text-base">Instagram</h3>
+              <p class="text-xs text-slate-500 mt-1 leading-relaxed">Behind the scenes, developer memes & model news.</p>
+            </div>
+            <div class="mt-4 pt-3 border-t border-slate-100 flex items-center justify-between text-xs font-medium text-slate-500">
+              <span>Follow</span>
+              <i data-lucide="external-link" class="w-3.5 h-3.5"></i>
+            </div>
+          </a>
+
+          <!-- Card 5: X / Twitter -->
+          <a id="card-x-link" href="https://x.com/ngotra_ai" target="_blank" class="bg-white hover:bg-slate-50 border border-slate-200 rounded-2xl p-5 shadow-sm hover:border-slate-500 transition flex flex-col justify-between group">
+            <div>
+              <div class="w-12 h-12 rounded-xl bg-slate-900 text-white flex items-center justify-center mb-4">
+                <svg class="w-4 h-4 fill-current flex-shrink-0" viewBox="0 0 24 24" aria-hidden="true"><path d="M18.9 2H22l-6.8 7.8L23.2 22h-6.3l-4.9-6.4L6.3 22H3.2l7.3-8.4L2.8 2h6.4l4.4 5.8L18.9 2zm-1.1 18h1.7L7.4 3.9H5.6L17.8 20z"/></svg>
+              </div>
+              <h3 class="font-bold text-slate-900 text-base">X (Twitter)</h3>
+              <p class="text-xs text-slate-500 mt-1 leading-relaxed">Fast updates, model benchmarks & prompt releases.</p>
+            </div>
+            <div class="mt-4 pt-3 border-t border-slate-100 flex items-center justify-between text-xs font-bold text-slate-900">
+              <span>Follow @ngotra_ai</span>
+              <i data-lucide="external-link" class="w-3.5 h-3.5"></i>
+            </div>
+          </a>
+
+        </div>
+      </div>
+    </section>
+
+    <!-- How It Works Section -->
+    <section id="how-it-works" class="py-16 bg-white border-b border-slate-200">
+      <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+        <div class="text-center max-w-3xl mx-auto mb-12">
+          <h2 class="text-xs font-medium text-slate-500 uppercase tracking-wider">Simple & Transparent</h2>
+          <h3 class="text-3xl font-semibold text-slate-900 mt-2">How the Ngotra AI Token System Works</h3>
+          <p class="text-slate-600 mt-3 text-sm">No credit card or monthly fee required. Watch 3 short sponsored links, add 500,000 tokens to your balance, and repeat every hour.</p>
+        </div>
+
+        <div class="grid grid-cols-1 md:grid-cols-3 gap-8">
+          <div class="bg-white rounded-lg p-6 border border-slate-200">
+            <div class="w-10 h-10 rounded-md bg-slate-100 text-slate-700 flex items-center justify-center font-semibold text-lg mb-4">1</div>
+            <h4 class="text-base font-semibold text-slate-900">Create your free API key</h4>
+            <p class="text-slate-600 text-xs mt-2 leading-relaxed">
+              Register in 10 seconds. Your key (<code class="bg-slate-100 px-1 py-0.5 rounded">sk-ngo-...</code>) is issued immediately.
+            </p>
+          </div>
+
+          <div class="bg-white rounded-lg p-6 border border-slate-300">
+            <div class="w-10 h-10 rounded-md bg-slate-900 text-white flex items-center justify-center font-semibold text-lg mb-4">2</div>
+            <h4 class="text-base font-semibold text-slate-900">Watch 3 quick ads</h4>
+            <p class="text-slate-600 text-xs mt-2 leading-relaxed">
+              Visit 3 sponsored links with a 10s verification timer. After Ad 3, <strong>500,000 tokens</strong> are added to your balance.
+            </p>
+          </div>
+
+          <div class="bg-white rounded-lg p-6 border border-slate-200">
+            <div class="w-10 h-10 rounded-md bg-slate-100 text-slate-700 flex items-center justify-center font-semibold text-lg mb-4">3</div>
+            <h4 class="text-base font-semibold text-slate-900">Use it anywhere</h4>
+            <p class="text-slate-600 text-xs mt-2 leading-relaxed">
+              Paste the key and endpoint into any OpenAI-compatible app, tool, or script. Requests spend tokens. Watch 3 ads again after the 1-hour cooldown to top up.
+            </p>
+          </div>
+        </div>
+      </div>
+    </section>
+
+    <!-- Available AI Models -->
+    <section id="models" class="py-16 bg-slate-50">
+      <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+        <div class="text-center max-w-3xl mx-auto mb-12">
+          <h2 class="text-xs font-medium text-slate-500 uppercase tracking-wider">High-Speed Gateway</h2>
+          <h3 class="text-3xl font-semibold text-slate-900 mt-2">Available Gemini Models</h3>
+          <p class="text-slate-600 mt-3 text-sm">Choose any model in your app or try it in our web playground.</p>
+        </div>
+
+        <div class="grid grid-cols-1 md:grid-cols-3 gap-6">
+          <div class="bg-white rounded-2xl p-6 border border-slate-200 shadow-sm hover:border-slate-300 transition">
+            <div class="flex items-center justify-between">
+              <span class="font-bold text-slate-900 text-base">gemini-3.7-flash</span>
+              <span class="px-2 py-0.5 rounded-full text-[10px] font-medium bg-slate-100 text-slate-600">DEFAULT</span>
+            </div>
+            <p class="text-xs text-slate-500 mt-2">Latest flagship model. Fast, multimodal vision, coding, and tool calling.</p>
+          </div>
+
+          <div class="bg-white rounded-2xl p-6 border border-slate-200 shadow-sm hover:border-slate-300 transition">
+            <div class="flex items-center justify-between">
+              <span class="font-bold text-slate-900 text-base">gemini-3.5-flash-thinking</span>
+              <span class="px-2 py-0.5 rounded-full text-[10px] font-medium bg-slate-100 text-slate-600">REASONING</span>
+            </div>
+            <p class="text-xs text-slate-500 mt-2">Chain-of-Thought deep thinking mode for complex math, algorithms, and deep analysis.</p>
+          </div>
+
+          <div class="bg-white rounded-2xl p-6 border border-slate-200 shadow-sm hover:border-slate-300 transition">
+            <div class="flex items-center justify-between">
+              <span class="font-bold text-slate-900 text-base">gemini-3.1-pro</span>
+              <span class="px-2 py-0.5 rounded-full text-[10px] font-medium bg-slate-100 text-slate-600">PRO GRADE</span>
+            </div>
+            <p class="text-xs text-slate-500 mt-2">High capacity pro-grade model for extensive reasoning and complex prompts.</p>
+          </div>
+        </div>
+      </div>
+    </section>
+
+    <!-- Integration Section -->
+    <section id="integration" class="py-16 bg-white border-t border-slate-200">
+      <div class="max-w-3xl mx-auto mb-12 px-4 text-center">
+        <h2 class="text-xs font-medium text-slate-500 uppercase tracking-wider">Fast Integration</h2>
+        <h3 class="text-3xl font-semibold text-slate-900 mt-2">Use the Free Gemini API Anywhere</h3>
+        <p class="text-slate-600 mt-3 text-sm">Watch ads to earn tokens, then spend them from any app, tool, or script that speaks the OpenAI API.</p>
+      </div>
+
+      <div class="max-w-5xl mx-auto px-4 sm:px-6 lg:px-8 grid grid-cols-1 md:grid-cols-2 gap-6">
+        <div class="bg-white rounded-lg border border-slate-200 p-6">
+          <div class="flex items-center gap-2 mb-4">
+            <i data-lucide="key" class="w-4 h-4 text-slate-500"></i>
+            <h4 class="text-sm font-semibold text-slate-900">Connection details</h4>
+          </div>
+          <pre class="text-xs text-slate-700 bg-slate-50 border border-slate-200 p-4 rounded-md overflow-x-auto"><code>Base URL: https://ngotra.site/v1
+API Key:  sk-ngo-YOUR_KEY
+Model:    gemini-3.7-flash</code></pre>
+          <p class="text-xs text-slate-500 mt-4">Earn 500,000 tokens by watching 3 ads. New cycles unlock after 1 hour.</p>
+        </div>
+
+        <div class="bg-slate-900 text-slate-200 rounded-lg p-6 border border-slate-800">
+          <div class="flex items-center gap-2 mb-4">
+            <i data-lucide="terminal" class="w-4 h-4 text-slate-400"></i>
+            <h4 class="text-sm font-semibold text-white">Example request</h4>
+          </div>
+          <pre class="text-xs text-indigo-200 bg-slate-950 p-4 rounded-md overflow-x-auto"><code>curl https://ngotra.site/v1/chat/completions \
+  -H "Authorization: Bearer sk-ngo-YOUR_KEY" \
+  -H "Content-Type: application/json" \
+  -d '{"model":"gemini-3.7-flash","messages":[{"role":"user","content":"Hello!"}]}'</code></pre>
+          <p class="text-xs text-slate-400 mt-4">The same endpoint works with any OpenAI-compatible client.</p>
+        </div>
+      </div>
+    </section>
+
+  </main>
+
+  <!-- Footer -->
+  <footer class="bg-white border-t border-slate-200 py-12">
+    <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 flex flex-col md:flex-row items-center justify-between gap-6">
+      <div class="flex items-center gap-2.5 flex-wrap">
+        <img src="data:image/png;base64,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" alt="" class="h-6 w-6 object-contain">
+        <span class="text-sm font-semibold text-slate-900">Ngotra AI</span>
+        <span class="text-xs text-slate-400">© 2026 ngotra.site. All rights reserved.</span>
+        <a href="/privacy" class="text-xs font-medium text-slate-500 hover:text-slate-900">Privacy Policy</a>
+      </div>
+
+      <!-- Social Media Icons in Footer -->
+      <div class="flex items-center gap-4 text-slate-400">
+        <a id="footer-discord-link" href="https://discord.gg/ngotra" target="_blank" class="hover:text-[#5865F2] transition" title="Discord">
+          <svg class="w-4 h-4 fill-current flex-shrink-0" viewBox="0 0 24 24" aria-hidden="true"><path d="M20.317 4.37a19.791 19.791 0 0 0-4.885-1.515.074.074 0 0 0-.079.037c-.21.375-.444.864-.608 1.25a18.27 18.27 0 0 0-5.487 0 12.64 12.64 0 0 0-.617-1.25.077.077 0 0 0-.079-.037A19.736 19.736 0 0 0 3.677 4.37a.07.07 0 0 0-.032.027C.533 9.046-.32 13.58.099 18.057a.082.082 0 0 0 .031.057 19.9 19.9 0 0 0 5.993 3.03.078.078 0 0 0 .084-.028c.462-.63.874-1.295 1.226-1.994.021-.041.001-.09-.041-.106a13.107 13.107 0 0 1-1.872-.892.077.077 0 0 1-.008-.128 10.2 10.2 0 0 0 .372-.292.074.074 0 0 1 .077-.01c3.929 1.793 8.18 1.793 12.061 0a.074.074 0 0 1 .078.01c.12.098.246.198.373.292a.077.077 0 0 1-.006.127 12.299 12.299 0 0 1-1.873.894.077.077 0 0 0-.041.107c.36.698.772 1.362 1.225 1.993a.076.076 0 0 0 .084.028 19.839 19.839 0 0 0 6.002-3.03.077.077 0 0 0 .032-.054c.5-5.177-.838-9.674-3.549-13.66a.061.061 0 0 0-.031-.028zM8.02 15.33c-1.183 0-2.157-1.085-2.157-2.419 0-1.333.956-2.419 2.157-2.419 1.21 0 2.176 1.096 2.157 2.42 0 1.333-.956 2.418-2.157 2.418zm7.975 0c-1.183 0-2.157-1.085-2.157-2.419 0-1.333.955-2.419 2.157-2.419 1.21 0 2.176 1.096 2.157 2.42 0 1.333-.946 2.418-2.157 2.418z"/></svg>
+        </a>
+        <a id="footer-telegram-link" href="https://t.me/ngotra_ai" target="_blank" class="hover:text-[#229ED9] transition" title="Telegram">
+          <svg class="w-4 h-4 fill-current flex-shrink-0" viewBox="0 0 24 24" aria-hidden="true"><path d="M12 2a10 10 0 1 0 0 20 10 10 0 0 0 0-20zm4.6 6.9-1.7 7.9c-.1.6-.5.8-1 .5l-2.8-2.1-1.4 1.3c-.2.2-.3.3-.6.3l.2-2.5 4.6-4.1c.2-.2 0-.3-.3-.1l-5.7 3.6-2.4-.7c-.5-.2-.5-.6.1-.8l9.3-3.6c.4-.1.8.1.7.8z"/></svg>
+        </a>
+        <a id="footer-youtube-link" href="https://youtube.com/@ngotra_ai" target="_blank" class="hover:text-red-500 transition" title="YouTube">
+          <svg class="w-4 h-4 fill-current flex-shrink-0" viewBox="0 0 24 24" aria-hidden="true"><path d="M21.6 7.2a2.4 2.4 0 0 0-1.7-1.7C18.4 5 12 5 12 5s-6.4 0-7.9.5A2.4 2.4 0 0 0 2.4 7.2C2 8.7 2 12 2 12s0 3.3.4 4.8a2.4 2.4 0 0 0 1.7 1.7C5.6 19 12 19 12 19s6.4 0 7.9-.5a2.4 2.4 0 0 0 1.7-1.7c.4-1.5.4-4.8.4-4.8s0-3.3-.4-4.8zM10 15V9l5 3-5 3z"/></svg>
+        </a>
+        <a id="footer-insta-link" href="https://instagram.com/ngotra_ai" target="_blank" class="hover:text-pink-500 transition" title="Instagram">
+          <svg class="w-4 h-4 fill-current flex-shrink-0" viewBox="0 0 24 24" aria-hidden="true"><path d="M12 2.2c3.2 0 3.6 0 4.9.1 1.2.1 1.8.3 2.2.4.6.2 1 .5 1.4.9.4.4.7.8.9 1.4.2.4.4 1 .4 2.2.1 1.3.1 1.7.1 4.8s0 3.6-.1 4.8c-.1 1.2-.3 1.8-.4 2.2-.2.6-.5 1-.9 1.4-.4.4-.8.7-1.4.9-.4.2-1 .4-2.2.4-1.3.1-1.7.1-4.9.1s-3.6 0-4.8-.1c-1.2-.1-1.8-.3-2.2-.4-.6-.2-1-.5-1.4-.9-.4-.4-.7-.8-.9-1.4-.2-.4-.4-1-.4-2.2-.1-1.3-.1-1.7-.1-4.8s0-3.6.1-4.8c.1-1.2.3-1.8.4-2.2.2-.6.5-1 .9-1.4.4-.4.8-.7 1.4-.9.4-.2 1-.4 2.2-.4 1.3-.1 1.7-.1 4.8-.1zM12 7.4a4.6 4.6 0 1 0 0 9.2 4.6 4.6 0 0 0 0-9.2zm0 7.6a3 3 0 1 1 0-6 3 3 0 0 1 0 6zm5.8-7.8a1.1 1.1 0 1 1-2.2 0 1.1 1.1 0 0 1 2.2 0z"/></svg>
+        </a>
+        <a id="footer-x-link" href="https://x.com/ngotra_ai" target="_blank" class="hover:text-slate-900 transition" title="X">
+          <svg class="w-4 h-4 fill-current flex-shrink-0" viewBox="0 0 24 24" aria-hidden="true"><path d="M18.9 2H22l-6.8 7.8L23.2 22h-6.3l-4.9-6.4L6.3 22H3.2l7.3-8.4L2.8 2h6.4l4.4 5.8L18.9 2zm-1.1 18h1.7L7.4 3.9H5.6L17.8 20z"/></svg>
+        </a>
+      </div>
+    </div>
+  </footer>
+
+  <!-- Auth Modal -->
+  <div id="auth-modal" class="fixed inset-0 z-50 bg-slate-900/50 backdrop-blur-sm hidden flex items-center justify-center p-4">
+    <div class="bg-white rounded-2xl max-w-md w-full p-6 sm:p-8 shadow-2xl border border-slate-200 relative animate-in fade-in duration-200">
+      <button onclick="closeAuthModal()" class="absolute top-4 right-4 text-slate-400 hover:text-slate-600">
+        <i data-lucide="x" class="w-5 h-5"></i>
+      </button>
+
+      <div class="flex border-b border-slate-200 mb-6">
+        <button id="modal-tab-login" onclick="setAuthTab('login')" class="flex-1 pb-3 text-sm font-semibold border-b-2 border-slate-900 text-slate-900 text-center">
+          Sign In
+        </button>
+        <button id="modal-tab-register" onclick="setAuthTab('register')" class="flex-1 pb-3 text-sm font-bold border-b-2 border-transparent text-slate-400 hover:text-slate-600 text-center">
+          Create Account
+        </button>
+      </div>
+
+      <div id="auth-alert" class="hidden mb-4 p-3 rounded-lg text-xs font-medium"></div>
+
+      <form id="auth-form" onsubmit="handleAuthSubmit(event)" class="space-y-4">
+        <div>
+          <label class="block text-xs font-semibold text-slate-700 mb-1">Email Address</label>
+          <input type="email" id="auth-email" required class="w-full px-3.5 py-2.5 border border-slate-300 rounded-lg text-sm focus:outline-none focus:ring-2 focus:ring-indigo-500" placeholder="developer@ngotra.site">
+        </div>
+
+        <div>
+          <label class="block text-xs font-semibold text-slate-700 mb-1">Password</label>
+          <input type="password" id="auth-password" required minlength="6" class="w-full px-3.5 py-2.5 border border-slate-300 rounded-lg text-sm focus:outline-none focus:ring-2 focus:ring-indigo-500" placeholder="••••••••">
+        </div>
+
+        <button type="submit" id="auth-submit-btn" class="w-full py-2.5 text-sm font-medium text-white bg-slate-900 hover:bg-slate-800 rounded-md transition">
+          Sign In
+        </button>
+      </form>
+    </div>
+  </div>
+
+  <script>
+    let currentAuthMode = 'login';
+
+    function openAuthModal(mode = 'login') {
+      currentAuthMode = mode;
+      setAuthTab(mode);
+      document.getElementById('auth-modal').classList.remove('hidden');
+      document.getElementById('auth-alert').classList.add('hidden');
+    }
+
+    function closeAuthModal() {
+      document.getElementById('auth-modal').classList.add('hidden');
+    }
+
+    function setAuthTab(mode) {
+      currentAuthMode = mode;
+      const tabLogin = document.getElementById('modal-tab-login');
+      const tabRegister = document.getElementById('modal-tab-register');
+      const submitBtn = document.getElementById('auth-submit-btn');
+
+      if (mode === 'login') {
+        tabLogin.className = "flex-1 pb-3 text-sm font-semibold border-b-2 border-slate-900 text-slate-900 text-center";
+        tabRegister.className = "flex-1 pb-3 text-sm font-bold border-b-2 border-transparent text-slate-400 hover:text-slate-600 text-center";
+        submitBtn.innerText = "Sign In to Dashboard";
+      } else {
+        tabRegister.className = "flex-1 pb-3 text-sm font-semibold border-b-2 border-slate-900 text-slate-900 text-center";
+        tabLogin.className = "flex-1 pb-3 text-sm font-bold border-b-2 border-transparent text-slate-400 hover:text-slate-600 text-center";
+        submitBtn.innerText = "Create Account & Get API Key";
+      }
+    }
+
+    async function handleAuthSubmit(e) {
+      e.preventDefault();
+      const email = document.getElementById('auth-email').value;
+      const password = document.getElementById('auth-password').value;
+      const alertBox = document.getElementById('auth-alert');
+      const submitBtn = document.getElementById('auth-submit-btn');
+
+      submitBtn.disabled = true;
+      submitBtn.innerText = "Please wait...";
+
+      try {
+        const endpoint = currentAuthMode === 'login' ? '/api/auth/login' : '/api/auth/register';
+        const res = await fetch(endpoint, {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify({ email, password })
+        });
+        const data = await res.json();
+
+        if (!res.ok) throw new Error(data.detail || 'Authentication failed');
+
+        alertBox.className = "mb-4 p-3 rounded-lg text-xs font-medium bg-emerald-50 text-emerald-700 border border-emerald-200";
+        alertBox.innerText = "Success! Redirecting...";
+        alertBox.classList.remove('hidden');
+
+        setTimeout(() => { window.location.href = '/dashboard/overview'; }, 800);
+      } catch (err) {
+        alertBox.className = "mb-4 p-3 rounded-lg text-xs font-medium bg-rose-50 text-rose-700 border border-rose-200";
+        alertBox.innerText = err.message;
+        alertBox.classList.remove('hidden');
+        submitBtn.disabled = false;
+        submitBtn.innerText = currentAuthMode === 'login' ? "Sign In" : "Create Account & Get API Key";
+      }
+    }
+
+    async function initPage() {
+      lucide.createIcons();
+      try {
+        const meRes = await fetch('/api/auth/me');
+        if (meRes.ok) {
+          document.getElementById('auth-nav-container').innerHTML = `
+            <a href="/dashboard/overview" class="px-4 py-2 text-xs font-medium text-white bg-slate-900 hover:bg-slate-800 rounded-md transition flex items-center gap-1.5">
+              <i data-lucide="layout-dashboard" class="w-3.5 h-3.5"></i>
+              <span>Dashboard</span>
+            </a>
+          `;
+          lucide.createIcons();
+        }
+
+        const confRes = await fetch('/api/public/config');
+        if (confRes.ok) {
+          const conf = await confRes.json();
+          if (conf.social_links) {
+            const sl = conf.social_links;
+            ['discord', 'telegram', 'youtube', 'insta', 'x'].forEach(s => {
+              const url = sl[s] || '#';
+              const topEl = document.getElementById(`top-${s}-link`);
+              const cardEl = document.getElementById(`card-${s}-link`);
+              const footEl = document.getElementById(`footer-${s}-link`);
+              if (topEl) topEl.href = url;
+              if (cardEl) cardEl.href = url;
+              if (footEl) footEl.href = url;
+            });
+          }
+          if (conf.enable_banners && conf.banner_728x90) {
+            document.getElementById('banner-728x90-content').innerHTML = conf.banner_728x90;
+            document.getElementById('banner-728x90-container').classList.remove('hidden');
+          }
+          if (conf.enable_popunder && conf.popunder_code) {
+            document.getElementById('adsterra-popunder-slot').innerHTML = conf.popunder_code;
+          }
+          if (conf.socialbar_code) {
+            document.getElementById('adsterra-socialbar-slot').innerHTML = conf.socialbar_code;
+          }
+        }
+      } catch (e) {
+        console.error(e);
+      }
+    }
+
+    window.addEventListener('DOMContentLoaded', initPage);
+  </script>
+</body>
+</html>

@@ -1,0 +1,52 @@
+<!doctype html>
+<html lang="en" dir="ltr">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>Ngotra Gemini Connector</title>
+  <style>
+    :root { color-scheme: light dark; }
+    body {
+      font-family: system-ui, -apple-system, "Segoe UI", sans-serif;
+      width: 360px;
+      margin: 0;
+      padding: 20px;
+      background: Canvas;
+      color: CanvasText;
+    }
+    .brand { display: flex; align-items: center; gap: 10px; margin-bottom: 16px; }
+    .brand-mark {
+      width: 34px; height: 34px; border-radius: 8px;
+      background: #0f172a; color: white; display: flex;
+      align-items: center; justify-content: center; font-weight: 700;
+    }
+    h1 { font-size: 16px; margin: 0; }
+    p { font-size: 13px; line-height: 1.5; margin: 10px 0; }
+    button {
+      width: 100%; padding: 11px 12px; margin-top: 12px;
+      border: 0; border-radius: 8px; cursor: pointer; font-size: 14px; font-weight: 600;
+    }
+    button:disabled { opacity: .55; cursor: wait; }
+    #connect { background: #0f172a; color: white; }
+    #status {
+      white-space: pre-wrap; overflow-wrap: anywhere; border-radius: 8px;
+      padding: 10px; background: color-mix(in srgb, CanvasText 7%, Canvas);
+      min-height: 40px; margin-top: 12px; font-size: 12px;
+    }
+    .ok { color: #17823b; }
+    .warn { color: #b34800; }
+    .note { opacity: .7; font-size: 11px; margin-top: 14px; }
+  </style>
+</head>
+<body>
+  <div class="brand">
+    <div class="brand-mark">N</div>
+    <h1>Ngotra Gemini Connector</h1>
+  </div>
+  <p>Sign in to Gemini, then verify to connect your account to Ngotra securely.</p>
+  <button id="connect" type="button">Verify &amp; Connect</button>
+  <p id="status">Ready.</p>
+  <p class="note">Your account session is sent encrypted and stored securely. If you face any issue, contact us.</p>
+  <script src="popup.js"></script>
+</body>
+</html>

@@ -1,0 +1,882 @@
+<!DOCTYPE html>
+<html lang="en" class="h-full bg-slate-50">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Admin Control Center | Ngotra AI - ngotra.site</title>
+  <link rel="icon" type="image/png" href="data:image/png;base64,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">
+  <link rel="shortcut icon" type="image/png" href="data:image/png;base64,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">
+  <!-- Tailwind CSS -->
+  <script src="https://cdn.tailwindcss.com"></script>
+  <script>
+    tailwind.config = {
+      theme: {
+        extend: {
+          colors: {
+            brand: {
+              50: '#eef2ff',
+              100: '#e0e7ff',
+              500: '#6366f1',
+              600: '#4f46e5',
+              700: '#4338ca',
+            }
+          }
+        }
+      }
+    }
+  </script>
+  <!-- Lucide Icons -->
+  <script src="https://unpkg.com/lucide@latest"></script>
+  <style>
+    @import url('https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap');
+    body { font-family: Inter, -apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif; }
+    code, pre, .font-mono { font-family: ui-monospace, SFMono-Regular, Menlo, Consolas, monospace; }
+
+    /* Calm, professional surface: no gradients, glows or decorative motion */
+    [class*="bg-gradient-to-"] { background-image: none !important; }
+    .bg-clip-text { color: #0f172a !important; -webkit-text-fill-color: #0f172a !important; }
+    .animate-pulse, .animate-spin, .animate-bounce { animation: none !important; }
+    .group:hover .group-hover\:scale-105 { transform: none !important; }
+    .shadow-lg, .shadow-xl, .shadow-md, [class*="shadow-indigo-"], [class*="shadow-emerald-"] { box-shadow: 0 1px 2px 0 rgb(15 23 42 / 0.06) !important; }
+    .ring-2, [class*="ring-indigo-"] { box-shadow: none !important; }
+    .rounded-2xl { border-radius: 0.625rem !important; }
+    .rounded-xl { border-radius: 0.5rem !important; }
+
+    /* Sidebar */
+    #sidebar { border-right: 1px solid #e2e8f0; }
+    .nav-item svg { opacity: .6; }
+    .nav-item.font-semibold svg, .nav-item:hover svg { opacity: 1; }
+  </style>
+</head>
+<body class="min-h-full flex text-slate-800 antialiased selection:bg-slate-900 selection:text-white bg-slate-50">
+
+  <!-- Mobile Backdrop -->
+  <div id="mobile-backdrop" onclick="toggleMobileSidebar()" class="fixed inset-0 z-40 bg-slate-900/50 backdrop-blur-sm hidden lg:hidden"></div>
+
+  <!-- ========================================================================= -->
+  <!-- ADMIN SIDEBAR NAVIGATION -->
+  <!-- ========================================================================= -->
+  <aside id="sidebar" class="fixed inset-y-0 left-0 z-50 w-60 bg-white border-r border-slate-200 flex flex-col -translate-x-full lg:translate-x-0 lg:static">
+
+    <!-- Brand -->
+    <div class="h-16 px-5 border-b border-slate-200 flex items-center justify-between">
+      <a href="/admin" class="flex items-center gap-2.5 min-w-0">
+        <img src="data:image/png;base64,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" alt="" class="h-7 w-7 object-contain flex-shrink-0">
+        <span class="text-sm font-semibold text-slate-900 truncate">Ngotra Admin</span>
+      </a>
+      <button onclick="toggleMobileSidebar()" class="lg:hidden text-slate-400 hover:text-slate-700">
+        <i data-lucide="x" class="w-4 h-4"></i>
+      </button>
+    </div>
+
+    <!-- Gateway summary -->
+    <div class="px-5 py-4 border-b border-slate-200">
+      <div class="flex items-center justify-between">
+        <span class="text-[11px] font-medium text-slate-500">Gateway status</span>
+        <span class="flex items-center gap-1.5 text-[11px] font-medium text-slate-700">
+          <span class="w-1.5 h-1.5 rounded-full bg-emerald-500"></span>
+          Online
+        </span>
+      </div>
+      <div class="mt-1 text-[11px] font-mono text-slate-500 truncate">https://ngotra.site/v1</div>
+    </div>
+
+    <!-- Navigation -->
+    <nav class="flex-1 px-3 py-4 space-y-0.5 overflow-y-auto text-[13px]">
+      <div class="px-2 pb-2 text-[10px] font-semibold uppercase tracking-wider text-slate-400">Administration</div>
+
+      <button onclick="navigateAdminView('overview')" id="nav-btn-overview" class="nav-item w-full flex items-center gap-3 px-3 py-2 rounded-md bg-slate-100 text-slate-900 font-semibold text-left">
+        <i data-lucide="bar-chart-3" class="w-4 h-4 flex-shrink-0"></i>
+        <span>Overview &amp; Metrics</span>
+      </button>
+
+      <button onclick="navigateAdminView('monetization')" id="nav-btn-monetization" class="nav-item w-full flex items-center gap-3 px-3 py-2 rounded-md text-slate-500 hover:bg-slate-50 hover:text-slate-900 text-left">
+        <i data-lucide="dollar-sign" class="w-4 h-4 flex-shrink-0"></i>
+        <span>Monetization</span>
+      </button>
+
+      <button onclick="navigateAdminView('upstream')" id="nav-btn-upstream" class="nav-item w-full flex items-center gap-3 px-3 py-2 rounded-md text-slate-500 hover:bg-slate-50 hover:text-slate-900 text-left">
+        <i data-lucide="cpu" class="w-4 h-4 flex-shrink-0"></i>
+        <span>Gemini Engine</span>
+      </button>
+
+      <button onclick="navigateAdminView('users')" id="nav-btn-users" class="nav-item w-full flex items-center gap-3 px-3 py-2 rounded-md text-slate-500 hover:bg-slate-50 hover:text-slate-900 text-left">
+        <i data-lucide="users" class="w-4 h-4 flex-shrink-0"></i>
+        <span>Users</span>
+        <span id="nav-admin-users-count" class="ml-auto bg-slate-100 text-slate-500 text-[10px] px-1.5 py-0.5 rounded font-semibold">-</span>
+      </button>
+
+      <button onclick="navigateAdminView('logs')" id="nav-btn-logs" class="nav-item w-full flex items-center gap-3 px-3 py-2 rounded-md text-slate-500 hover:bg-slate-50 hover:text-slate-900 text-left">
+        <i data-lucide="activity" class="w-4 h-4 flex-shrink-0"></i>
+        <span>Request Logs</span>
+      </button>
+
+      <div class="px-2 pt-5 pb-2 text-[10px] font-semibold uppercase tracking-wider text-slate-400">Portals</div>
+
+      <a href="/dashboard" class="nav-item flex items-center gap-3 px-3 py-2 rounded-md text-slate-500 hover:bg-slate-50 hover:text-slate-900">
+        <i data-lucide="layout-dashboard" class="w-4 h-4 flex-shrink-0"></i>
+        <span>User Dashboard</span>
+      </a>
+
+      <a href="/" class="nav-item flex items-center gap-3 px-3 py-2 rounded-md text-slate-500 hover:bg-slate-50 hover:text-slate-900">
+        <i data-lucide="globe" class="w-4 h-4 flex-shrink-0"></i>
+        <span>Landing Page</span>
+      </a>
+    </nav>
+
+    <!-- Footer -->
+    <div class="p-3 border-t border-slate-200">
+      <div class="flex items-center gap-2.5 p-1.5">
+        <div class="w-8 h-8 rounded-md bg-slate-900 text-white font-semibold flex items-center justify-center text-xs flex-shrink-0">A</div>
+        <div class="min-w-0 flex-1">
+          <div class="text-xs font-medium text-slate-800 truncate" id="admin-email-display">admin@ngotra.site</div>
+          <div class="text-[10px] uppercase tracking-wide text-slate-400">Super Admin</div>
+        </div>
+        <button onclick="handleLogout()" title="Sign out" class="p-1.5 rounded-md text-slate-400 hover:text-slate-700 hover:bg-slate-100 transition">
+          <i data-lucide="log-out" class="w-4 h-4"></i>
+        </button>
+      </div>
+      <a href="/privacy" target="_blank" class="block mt-2 text-center text-[10px] text-slate-400 hover:text-slate-700">Privacy Policy</a>
+    </div>
+  </aside>
+
+  <!-- ========================================================================= -->
+  <!-- MAIN ADMIN CONTENT -->
+  <!-- ========================================================================= -->
+  <div class="flex-1 flex flex-col min-w-0 overflow-y-auto">
+    
+    <!-- Topbar -->
+    <header class="h-16 bg-white/95 backdrop-blur border-b border-slate-200 px-4 sm:px-8 flex items-center justify-between sticky top-0 z-30">
+      <div class="flex items-center gap-3">
+        <button onclick="toggleMobileSidebar()" class="lg:hidden p-2 rounded-lg text-slate-600 hover:bg-slate-100 transition">
+          <i data-lucide="menu" class="w-5 h-5"></i>
+        </button>
+        <h1 class="text-base sm:text-lg font-bold text-slate-900 flex items-center gap-2" id="topbar-page-title">
+          <span>Overview & Metrics</span>
+        </h1>
+      </div>
+
+      <div class="flex items-center gap-3 text-xs font-semibold">
+        <div class="hidden sm:flex items-center gap-2 px-3 py-1.5 rounded-md bg-slate-100 text-slate-600">
+          <i data-lucide="shield-check" class="w-3.5 h-3.5"></i>
+          <span>Admin Master Key: sk-ngo-admin-...</span>
+        </div>
+        <a href="/dashboard" class="px-3.5 py-1.5 rounded-md bg-slate-900 text-white hover:bg-slate-800 transition flex items-center gap-1.5 font-medium">
+          <i data-lucide="user" class="w-3.5 h-3.5"></i>
+          <span>User Mode</span>
+        </a>
+      </div>
+    </header>
+
+    <!-- VIEWS CONTAINER -->
+    <main class="flex-1 p-4 sm:p-8 max-w-7xl mx-auto w-full">
+
+      <!-- ===================================================================== -->
+      <!-- VIEW 1: OVERVIEW & METRICS -->
+      <!-- ===================================================================== -->
+      <div id="view-overview" class="space-y-8">
+        
+        <!-- KPI Metrics Grid -->
+        <div class="grid grid-cols-2 lg:grid-cols-4 gap-4">
+          <!-- Total Users -->
+          <div class="bg-white rounded-lg p-6 border border-slate-200">
+            <div class="text-xs font-medium text-slate-500 uppercase tracking-wider">Total users</div>
+            <div class="text-2xl font-semibold text-slate-900 mt-2" id="metric-total-users">-</div>
+            <div class="text-xs text-slate-400 mt-1 flex items-center gap-1">
+              <span class="w-2 h-2 rounded-full bg-slate-400"></span>
+              <span>Registered accounts</span>
+            </div>
+          </div>
+
+          <!-- Users With Tokens -->
+          <div class="bg-white rounded-lg p-6 border border-slate-200">
+            <div class="text-xs font-medium text-slate-500 uppercase tracking-wider">Funded users</div>
+            <div class="text-2xl font-semibold text-slate-900 mt-2" id="metric-active-unlocks">-</div>
+            <div class="text-xs text-slate-400 mt-1 flex items-center gap-1">
+              <span class="w-2 h-2 rounded-full bg-emerald-500"></span>
+              <span>Users with tokens or VIP access</span>
+            </div>
+          </div>
+
+          <!-- Total Requests -->
+          <div class="bg-white rounded-lg p-6 border border-slate-200">
+            <div class="text-xs font-medium text-slate-500 uppercase tracking-wider">Total API requests</div>
+            <div class="text-2xl font-semibold text-slate-900 mt-2" id="metric-total-requests">-</div>
+            <div class="text-xs text-slate-400 mt-1" id="metric-today-requests">- today</div>
+          </div>
+
+          <!-- Total Ads Watched -->
+          <div class="bg-white rounded-lg p-6 border border-slate-200">
+            <div class="text-xs font-medium text-slate-500 uppercase tracking-wider">Ads watched</div>
+            <div class="text-2xl font-semibold text-slate-900 mt-2" id="metric-total-ads">-</div>
+            <div class="text-xs text-slate-400 mt-1" id="metric-today-unlocks">- ad cycles today</div>
+          </div>
+        </div>
+
+        <!-- System Summary Card -->
+        <div class="bg-white rounded-lg p-6 sm:p-8 border border-slate-200 space-y-4">
+          <div class="flex flex-col sm:flex-row sm:items-center justify-between gap-4 pb-4 border-b border-slate-100">
+            <div>
+              <h3 class="text-base font-semibold text-slate-900">Platform deployment: ngotra.site</h3>
+              <p class="text-xs text-slate-500 mt-0.5">High-Speed OpenAI-compatible Gemini API Gateway with Adsterra monetization.</p>
+            </div>
+            <div class="flex items-center gap-2">
+              <button onclick="navigateAdminView('monetization')" class="px-4 py-2 text-xs font-medium text-slate-700 bg-slate-100 hover:bg-slate-200 rounded-md transition">
+                Monetization settings
+              </button>
+              <button onclick="navigateAdminView('upstream')" class="px-4 py-2 text-xs font-medium text-white bg-slate-900 hover:bg-slate-800 rounded-md transition">
+                Gemini cookies
+              </button>
+            </div>
+          </div>
+
+          <div class="grid grid-cols-1 md:grid-cols-3 gap-4 text-xs">
+            <div class="p-4 rounded-md bg-slate-50 border border-slate-200">
+              <span class="text-slate-400 font-semibold uppercase text-[10px]">OpenAI Endpoint</span>
+              <div class="font-mono font-medium text-slate-800 mt-1">https://ngotra.site/v1</div>
+            </div>
+            <div class="p-4 rounded-md bg-slate-50 border border-slate-200">
+              <span class="text-slate-400 font-semibold uppercase text-[10px]">Ad Monetization Rule</span>
+              <div class="font-bold text-slate-800 mt-1" id="overview-rule-label">Watch 3 Ads = 500,000 Tokens</div>
+            </div>
+            <div class="p-4 rounded-md bg-slate-50 border border-slate-200">
+              <span class="text-slate-400 font-semibold uppercase text-[10px]">Default AI Model</span>
+              <div class="font-bold text-slate-800 mt-1" id="overview-model-label">gemini-3.7-flash</div>
+            </div>
+          </div>
+        </div>
+
+      </div>
+
+      <!-- ===================================================================== -->
+      <!-- VIEW 2: ADSTERRA & MONETIZATION -->
+      <!-- ===================================================================== -->
+      <div id="view-monetization" class="space-y-6 hidden">
+        <div class="bg-white rounded-lg p-6 sm:p-8 border border-slate-200">
+          <div class="pb-4 border-b border-slate-100 mb-6">
+            <h3 class="text-lg font-semibold text-slate-900 flex items-center gap-2">
+              <i data-lucide="dollar-sign" class="w-5 h-5 text-slate-500"></i>
+              <span>Adsterra Monetization & Ad Rules Configuration</span>
+            </h3>
+            <p class="text-xs text-slate-500 mt-1">Configure Adsterra Direct Link pool, ads count, token rewards, cooldown, banners, and popunders.</p>
+          </div>
+
+          <form onsubmit="handleSaveSettings(event)" class="space-y-6">
+            <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6">
+              <div>
+                <label class="block text-xs font-medium text-slate-700 mb-1.5">Ads Required to Unlock (Per Cycle)</label>
+                <input type="number" id="set-ads-count" min="1" max="10" class="w-full px-3.5 py-2.5 text-xs border border-slate-300 rounded-lg focus:ring-2 focus:ring-indigo-500 focus:outline-none" required>
+                <p class="text-[11px] text-slate-400 mt-1">Default: 3 ads per unlock.</p>
+              </div>
+
+              <div>
+                <label class="block text-xs font-medium text-slate-700 mb-1.5">Tokens Added Per Ad Cycle</label>
+                <input type="number" id="set-tokens-per-cycle" min="1" step="1000" class="w-full px-3.5 py-2.5 text-xs border border-slate-300 rounded-lg focus:ring-2 focus:ring-indigo-500 focus:outline-none" required>
+                <p class="text-[11px] text-slate-400 mt-1">Default: 500,000 tokens for watching 3 ads.</p>
+              </div>
+
+              <div>
+                <label class="block text-xs font-medium text-slate-700 mb-1.5">Ad Cycle Cooldown (Hours)</label>
+                <input type="number" id="set-cycle-cooldown-hours" min="0" step="0.5" class="w-full px-3.5 py-2.5 text-xs border border-slate-300 rounded-lg focus:ring-2 focus:ring-indigo-500 focus:outline-none" required>
+                <p class="text-[11px] text-slate-400 mt-1">Wait before the next 3-ad cycle (Default: 1 hour).</p>
+              </div>
+
+              <div>
+                <label class="block text-xs font-medium text-slate-700 mb-1.5">Ad Verification Timer (Seconds)</label>
+                <input type="number" id="set-ad-cooldown" min="3" max="60" class="w-full px-3.5 py-2.5 text-xs border border-slate-300 rounded-lg focus:ring-2 focus:ring-indigo-500 focus:outline-none" required>
+                <p class="text-[11px] text-slate-400 mt-1">Seconds on each ad link before user can verify view (Default: 10s).</p>
+              </div>
+            </div>
+
+            <!-- Direct Links -->
+            <div>
+              <label class="block text-xs font-medium text-slate-700 mb-1.5">
+                Adsterra Direct Link URLs (1 per line or comma-separated)
+              </label>
+              <textarea id="set-direct-links" rows="3" class="w-full font-mono text-xs px-3.5 py-2.5 border border-slate-300 rounded-lg focus:ring-2 focus:ring-indigo-500 focus:outline-none" placeholder="https://www.profitablecpmrate.com/directlink1&#10;https://www.profitablecpmrate.com/directlink2"></textarea>
+              <p class="text-[11px] text-slate-400 mt-1">When users click Ad 1, Ad 2, Ad 3, the unlocker automatically rotates through these links.</p>
+            </div>
+
+            <!-- Banners & Popunders -->
+            <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
+              <div>
+                <label class="block text-xs font-medium text-slate-700 mb-1.5">Adsterra 728x90 Leaderboard Banner (HTML / Script)</label>
+                <textarea id="set-banner-728" rows="4" class="w-full font-mono text-xs px-3.5 py-2.5 border border-slate-300 rounded-lg focus:ring-2 focus:ring-indigo-500 focus:outline-none" placeholder="<script>...</script>"></textarea>
+              </div>
+
+              <div>
+                <label class="block text-xs font-medium text-slate-700 mb-1.5">Adsterra 300x250 Rectangle Banner (HTML / Script)</label>
+                <textarea id="set-banner-300" rows="4" class="w-full font-mono text-xs px-3.5 py-2.5 border border-slate-300 rounded-lg focus:ring-2 focus:ring-indigo-500 focus:outline-none" placeholder="<script>...</script>"></textarea>
+              </div>
+
+              <div>
+                <label class="block text-xs font-medium text-slate-700 mb-1.5">Adsterra 468x60 Content Banner (HTML / Script)</label>
+                <textarea id="set-banner-468" rows="4" class="w-full font-mono text-xs px-3.5 py-2.5 border border-slate-300 rounded-lg focus:ring-2 focus:ring-indigo-500 focus:outline-none" placeholder="<script>...</script>"></textarea>
+              </div>
+
+              <div>
+                <label class="block text-xs font-medium text-slate-700 mb-1.5">Adsterra Popunder Script Code</label>
+                <textarea id="set-popunder" rows="4" class="w-full font-mono text-xs px-3.5 py-2.5 border border-slate-300 rounded-lg focus:ring-2 focus:ring-indigo-500 focus:outline-none" placeholder="<script type='text/javascript' src='//...popunder.js'></script>"></textarea>
+              </div>
+
+              <div class="md:col-span-2">
+                <label class="block text-xs font-medium text-slate-700 mb-1.5">Adsterra Social Bar / In-Page Push Script Code</label>
+                <textarea id="set-socialbar" rows="3" class="w-full font-mono text-xs px-3.5 py-2.5 border border-slate-300 rounded-lg focus:ring-2 focus:ring-indigo-500 focus:outline-none" placeholder="<script type='text/javascript' src='//...socialbar.js'></script>"></textarea>
+              </div>
+            </div>
+
+            <!-- Toggles -->
+            <div class="flex flex-wrap gap-6 pt-2 border-t border-slate-100">
+              <label class="flex items-center gap-2 text-xs font-semibold text-slate-700 cursor-pointer">
+                <input type="checkbox" id="set-enable-ads" class="rounded text-slate-900 focus:ring-slate-400">
+                <span>Enable Ad-Pass System</span>
+              </label>
+              <label class="flex items-center gap-2 text-xs font-semibold text-slate-700 cursor-pointer">
+                <input type="checkbox" id="set-enable-banners" class="rounded text-slate-900 focus:ring-slate-400">
+                <span>Display Banner Ads (728x90, 300x250, 468x60)</span>
+              </label>
+              <label class="flex items-center gap-2 text-xs font-semibold text-slate-700 cursor-pointer">
+                <input type="checkbox" id="set-enable-popunder" class="rounded text-slate-900 focus:ring-slate-400">
+                <span>Enable Popunder Script</span>
+              </label>
+            </div>
+
+            <button type="submit" class="px-6 py-3 text-xs font-medium text-white bg-slate-900 hover:bg-slate-800 rounded-md transition flex items-center gap-2">
+              <i data-lucide="save" class="w-4 h-4"></i>
+              <span>Save Monetization Settings</span>
+            </button>
+          </form>
+        </div>
+      </div>
+
+      <!-- ===================================================================== -->
+      <!-- VIEW 3: UPSTREAM GEMINI ENGINE & DOMAIN -->
+      <!-- ===================================================================== -->
+      <div id="view-upstream" class="space-y-6 hidden">
+        <div class="bg-white rounded-lg p-6 sm:p-8 border border-slate-200">
+          <div class="pb-4 border-b border-slate-100 mb-6">
+            <h3 class="text-lg font-semibold text-slate-900 flex items-center gap-2">
+              <i data-lucide="cpu" class="w-5 h-5 text-slate-500"></i>
+              <span>Upstream Google Gemini Engine & Domain Configuration</span>
+            </h3>
+            <p class="text-xs text-slate-500 mt-1">Manage Gemini Web cookies, proxy, backend BL version, and branding.</p>
+          </div>
+
+          <form onsubmit="handleSaveSettings(event)" class="space-y-6">
+            <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
+              <div>
+                <label class="block text-xs font-medium text-slate-700 mb-1.5">Site Domain</label>
+                <input type="text" id="set-site-domain" class="w-full px-3.5 py-2.5 text-xs border border-slate-300 rounded-lg focus:ring-2 focus:ring-indigo-500 focus:outline-none" placeholder="ngotra.site">
+              </div>
+
+              <div>
+                <label class="block text-xs font-medium text-slate-700 mb-1.5">Site Brand Name</label>
+                <input type="text" id="set-site-name" class="w-full px-3.5 py-2.5 text-xs border border-slate-300 rounded-lg focus:ring-2 focus:ring-indigo-500 focus:outline-none" placeholder="Ngotra AI">
+              </div>
+
+              <div>
+                <label class="block text-xs font-medium text-slate-700 mb-1.5">Default Fallback Model</label>
+                <select id="set-default-model" class="w-full px-3.5 py-2.5 text-xs border border-slate-300 rounded-lg focus:ring-2 focus:ring-indigo-500 focus:outline-none">
+                  <option value="gemini-3.7-flash">gemini-3.7-flash (Recommended)</option>
+                  <option value="gemini-3.6-flash">gemini-3.6-flash</option>
+                  <option value="gemini-3.5-flash-thinking">gemini-3.5-flash-thinking</option>
+                  <option value="gemini-3.1-pro">gemini-3.1-pro</option>
+                </select>
+              </div>
+
+              <div>
+                <label class="block text-xs font-medium text-slate-700 mb-1.5">Gemini BL Version Label</label>
+                <input type="text" id="set-gemini-bl" class="w-full px-3.5 py-2.5 text-xs border border-slate-300 rounded-lg focus:ring-2 focus:ring-indigo-500 focus:outline-none" placeholder="boq_assistant-bard-web-server_20260716.08_p0">
+              </div>
+
+              <div class="md:col-span-2">
+                <label class="block text-xs font-medium text-slate-700 mb-1.5">HTTP / SOCKS5 Proxy URL (Optional)</label>
+                <input type="text" id="set-gemini-proxy" class="w-full px-3.5 py-2.5 text-xs border border-slate-300 rounded-lg focus:ring-2 focus:ring-indigo-500 focus:outline-none" placeholder="http://127.0.0.1:7890 or socks5://user:pass@host:port">
+              </div>
+
+              <div class="md:col-span-2 pt-4 border-t border-slate-100">
+                <h4 class="text-xs font-bold text-slate-800 uppercase tracking-wider mb-3">Connect Gemini Account (Google OAuth)</h4>
+                <p class="text-[11px] text-slate-500 mb-3 leading-relaxed">
+                  Create a <strong>Web application</strong> OAuth client in Google Cloud Console, enable the <strong>Generative Language API</strong>, and set the authorized redirect URI to:<br>
+                  <code class="bg-slate-100 px-1 rounded" id="oauth-redirect-preview">https://ngotra.site/api/auth/gemini/callback</code>
+                </p>
+                <div class="grid grid-cols-1 sm:grid-cols-2 gap-4">
+                  <div>
+                    <label class="block text-xs font-medium text-slate-700 mb-1.5">Google Client ID</label>
+                    <input type="text" id="set-google-client-id" class="w-full px-3.5 py-2.5 text-xs border border-slate-300 rounded-lg focus:ring-2 focus:ring-indigo-500 focus:outline-none" placeholder="xxxx.apps.googleusercontent.com">
+                  </div>
+                  <div>
+                    <label class="block text-xs font-medium text-slate-700 mb-1.5">Google Client Secret</label>
+                    <input type="password" id="set-google-client-secret" class="w-full px-3.5 py-2.5 text-xs border border-slate-300 rounded-lg focus:ring-2 focus:ring-indigo-500 focus:outline-none" placeholder="GOCSPX-...">
+                  </div>
+                </div>
+                <p class="text-[11px] text-slate-400 mt-2">Users can then click "Connect with Google" in their dashboard settings. Tokens are encrypted and refreshed automatically.</p>
+              </div>
+            </div>
+
+            <div class="md:col-span-2 pt-4 border-t border-slate-100">
+              <h4 class="text-xs font-bold text-slate-800 uppercase tracking-wider mb-3">Official Community & Social Media Links</h4>
+              <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4">
+                <div>
+                  <label class="block text-[11px] font-medium text-slate-600 mb-1">Discord Invite URL</label>
+                  <input type="text" id="set-social-discord" class="w-full px-3 py-2 text-xs border border-slate-300 rounded-lg focus:ring-2 focus:ring-indigo-500 focus:outline-none" placeholder="https://discord.gg/ngotra">
+                </div>
+                <div>
+                  <label class="block text-[11px] font-medium text-slate-600 mb-1">Telegram Group / Channel URL</label>
+                  <input type="text" id="set-social-telegram" class="w-full px-3 py-2 text-xs border border-slate-300 rounded-lg focus:ring-2 focus:ring-indigo-500 focus:outline-none" placeholder="https://t.me/ngotra_ai">
+                </div>
+                <div>
+                  <label class="block text-[11px] font-medium text-slate-600 mb-1">YouTube Channel URL</label>
+                  <input type="text" id="set-social-youtube" class="w-full px-3 py-2 text-xs border border-slate-300 rounded-lg focus:ring-2 focus:ring-indigo-500 focus:outline-none" placeholder="https://youtube.com/@ngotra_ai">
+                </div>
+                <div>
+                  <label class="block text-[11px] font-medium text-slate-600 mb-1">Instagram Profile URL</label>
+                  <input type="text" id="set-social-instagram" class="w-full px-3 py-2 text-xs border border-slate-300 rounded-lg focus:ring-2 focus:ring-indigo-500 focus:outline-none" placeholder="https://instagram.com/ngotra_ai">
+                </div>
+                <div>
+                  <label class="block text-[11px] font-medium text-slate-600 mb-1">X (Twitter) Profile URL</label>
+                  <input type="text" id="set-social-x" class="w-full px-3 py-2 text-xs border border-slate-300 rounded-lg focus:ring-2 focus:ring-indigo-500 focus:outline-none" placeholder="https://x.com/ngotra_ai">
+                </div>
+              </div>
+            </div>
+
+            <button type="submit" class="px-6 py-3 text-xs font-medium text-white bg-slate-900 hover:bg-slate-800 rounded-md transition flex items-center gap-2">
+              <i data-lucide="refresh-cw" class="w-4 h-4"></i>
+              <span>Save & Re-sync Upstream Engine</span>
+            </button>
+          </form>
+        </div>
+      </div>
+
+      <!-- ===================================================================== -->
+      <!-- VIEW 4: USER MANAGEMENT -->
+      <!-- ===================================================================== -->
+      <div id="view-users" class="space-y-6 hidden">
+        <div class="bg-white rounded-lg p-6 sm:p-8 border border-slate-200">
+          <div class="flex flex-col sm:flex-row sm:items-center justify-between gap-4 pb-4 border-b border-slate-100 mb-6">
+            <div>
+              <h3 class="text-lg font-semibold text-slate-900 flex items-center gap-2">
+                <i data-lucide="users" class="w-5 h-5 text-slate-500"></i>
+                <span>User Accounts & Token Control</span>
+              </h3>
+              <p class="text-xs text-slate-500 mt-1">Search accounts, grant manual tokens, toggle permanent VIP bypass, or ban accounts.</p>
+            </div>
+
+            <div class="flex items-center gap-2">
+              <input type="text" id="user-search-input" placeholder="Search email..." class="text-xs px-3.5 py-2 border border-slate-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-indigo-500" oninput="debounceUserSearch()">
+            </div>
+          </div>
+
+          <div class="overflow-x-auto">
+            <table class="w-full text-left text-xs">
+              <thead>
+                <tr class="text-slate-400 border-b border-slate-100 font-semibold">
+                  <th class="pb-3">ID</th>
+                  <th class="pb-3">EMAIL</th>
+                  <th class="pb-3">ROLE</th>
+                  <th class="pb-3">TOKEN BALANCE</th>
+                  <th class="pb-3">ADS WATCHED</th>
+                  <th class="pb-3">REQUESTS</th>
+                  <th class="pb-3 text-right">ACTIONS</th>
+                </tr>
+              </thead>
+              <tbody id="users-table-body" class="divide-y divide-slate-100">
+                <tr>
+                  <td colspan="7" class="py-6 text-center text-slate-400">Loading users...</td>
+                </tr>
+              </tbody>
+            </table>
+          </div>
+        </div>
+      </div>
+
+      <!-- ===================================================================== -->
+      <!-- VIEW 5: LIVE REQUEST LOGS -->
+      <!-- ===================================================================== -->
+      <div id="view-logs" class="space-y-6 hidden">
+        <div class="bg-white rounded-lg p-6 sm:p-8 border border-slate-200">
+          <div class="flex items-center justify-between pb-4 border-b border-slate-100 mb-6">
+            <div>
+              <h3 class="text-lg font-semibold text-slate-900 flex items-center gap-2">
+                <i data-lucide="activity" class="w-5 h-5 text-slate-500"></i>
+                <span>Live API Request Logs</span>
+              </h3>
+              <p class="text-xs text-slate-500 mt-1">Real-time incoming API requests from all clients.</p>
+            </div>
+
+            <button onclick="fetchLogs()" class="px-3.5 py-1.5 text-xs font-semibold bg-slate-100 hover:bg-slate-200 text-slate-700 rounded-lg transition flex items-center gap-1.5">
+              <i data-lucide="refresh-cw" class="w-3.5 h-3.5"></i>
+              <span>Refresh Logs</span>
+            </button>
+          </div>
+
+          <div class="overflow-x-auto">
+            <table class="w-full text-left text-xs font-mono">
+              <thead>
+                <tr class="text-slate-400 border-b border-slate-100 font-semibold font-sans">
+                  <th class="pb-3">TIME</th>
+                  <th class="pb-3">USER</th>
+                  <th class="pb-3">ENDPOINT</th>
+                  <th class="pb-3">MODEL</th>
+                  <th class="pb-3">STATUS</th>
+                  <th class="pb-3">LATENCY</th>
+                  <th class="pb-3">TOKENS</th>
+                  <th class="pb-3">CLIENT IP</th>
+                </tr>
+              </thead>
+              <tbody id="logs-table-body" class="divide-y divide-slate-100">
+                <tr>
+                  <td colspan="8" class="py-6 text-center text-slate-400 font-sans">Loading logs...</td>
+                </tr>
+              </tbody>
+            </table>
+          </div>
+        </div>
+      </div>
+
+    </main>
+  </div>
+
+  <script>
+    let currentAdminView = 'overview';
+    let cachedSettings = {};
+
+    const ADMIN_VIEWS = ['overview', 'monetization', 'upstream', 'users', 'logs'];
+    const ADMIN_TITLES = {
+      'overview': 'Overview & Metrics',
+      'monetization': 'Adsterra Monetization & Ads',
+      'upstream': 'Upstream Gemini Engine & Domain',
+      'users': 'User Management & Access Control',
+      'logs': 'Live Request Logs Inspector'
+    };
+
+    function navigateAdminView(viewName) {
+      if (!ADMIN_VIEWS.includes(viewName)) viewName = 'overview';
+      currentAdminView = viewName;
+      if (window.location.pathname !== `/admin/${viewName}` && window.location.pathname !== `/admin/${viewName}/`) {
+        history.pushState({ view: viewName }, '', `/admin/${viewName}`);
+      }
+
+      ADMIN_VIEWS.forEach(v => {
+        const viewEl = document.getElementById(`view-${v}`);
+        const navBtn = document.getElementById(`nav-btn-${v}`);
+        if (v === viewName) {
+          viewEl?.classList.remove('hidden');
+          navBtn?.classList.add('bg-slate-100', 'text-slate-900', 'font-semibold');
+          navBtn?.classList.remove('text-slate-500');
+        } else {
+          viewEl?.classList.add('hidden');
+          navBtn?.classList.remove('bg-slate-100', 'text-slate-900', 'font-semibold');
+          navBtn?.classList.add('text-slate-500');
+        }
+      });
+
+      document.getElementById('topbar-page-title').innerHTML = `<span>${ADMIN_TITLES[viewName] || 'Admin'}</span>`;
+      lucide.createIcons();
+      closeMobileSidebar();
+      if (viewName === 'logs') fetchLogs();
+      if (viewName === 'users') fetchUsers();
+    }
+
+    function toggleMobileSidebar() {
+      const sidebar = document.getElementById('sidebar');
+      const backdrop = document.getElementById('mobile-backdrop');
+      if (sidebar.classList.contains('-translate-x-full')) {
+        sidebar.classList.remove('-translate-x-full');
+        backdrop.classList.remove('hidden');
+      } else {
+        sidebar.classList.add('-translate-x-full');
+        backdrop.classList.add('hidden');
+      }
+    }
+
+    function closeMobileSidebar() {
+      document.getElementById('sidebar')?.classList.add('-translate-x-full');
+      document.getElementById('mobile-backdrop')?.classList.add('hidden');
+    }
+
+    async function initAdmin() {
+      lucide.createIcons();
+
+      // Check URL pathname or hash for initial view
+      const pathParts = window.location.pathname.split('/').filter(Boolean);
+      const hash = window.location.hash.replace('#', '');
+      if (pathParts.length > 1 && ADMIN_VIEWS.includes(pathParts[1])) {
+        currentAdminView = pathParts[1];
+      } else if (ADMIN_VIEWS.includes(hash)) {
+        currentAdminView = hash;
+      }
+
+      window.addEventListener('popstate', (e) => {
+        const parts = window.location.pathname.split('/').filter(Boolean);
+        if (parts.length > 1 && ADMIN_VIEWS.includes(parts[1])) {
+          navigateAdminView(parts[1]);
+        } else {
+          navigateAdminView('overview');
+        }
+      });
+
+      await fetchMetrics();
+      await fetchSettings();
+      await fetchUsers();
+      await fetchLogs();
+      navigateAdminView(currentAdminView);
+    }
+
+    async function fetchMetrics() {
+      try {
+        const res = await fetch('/api/admin/stats');
+        if (!res.ok) {
+          alert('Admin privileges required.');
+          window.location.href = '/dashboard';
+          return;
+        }
+        const data = await res.json();
+        document.getElementById('metric-total-users').innerText = data.total_users;
+        document.getElementById('nav-admin-users-count').innerText = data.total_users;
+        document.getElementById('metric-active-unlocks').innerText = data.active_unlocks;
+        document.getElementById('metric-total-requests').innerText = data.total_requests;
+        document.getElementById('metric-today-requests').innerText = `${data.today_requests} requests today`;
+        document.getElementById('metric-total-ads').innerText = data.total_ads_watched;
+        document.getElementById('metric-today-unlocks').innerText = `${data.today_unlocks} ad cycles today`;
+      } catch (e) {
+        console.error(e);
+      }
+    }
+
+    async function fetchSettings() {
+      try {
+        const res = await fetch('/api/admin/settings');
+        const data = await res.json();
+        cachedSettings = data.settings || {};
+
+        document.getElementById('set-ads-count').value = cachedSettings.ads_required_count || '3';
+        document.getElementById('set-tokens-per-cycle').value = cachedSettings.tokens_per_cycle || '500000';
+        document.getElementById('set-cycle-cooldown-hours').value = cachedSettings.ad_cycle_cooldown_hours || '1';
+        document.getElementById('set-ad-cooldown').value = cachedSettings.ad_cooldown_seconds || '10';
+        document.getElementById('set-direct-links').value = cachedSettings.adsterra_direct_links || '';
+        document.getElementById('set-banner-728').value = cachedSettings.adsterra_banner_728x90 || '';
+        document.getElementById('set-banner-300').value = cachedSettings.adsterra_banner_300x250 || '';
+        document.getElementById('set-banner-468').value = cachedSettings.adsterra_banner_468x60 || '';
+        document.getElementById('set-popunder').value = cachedSettings.adsterra_popunder_code || '';
+        document.getElementById('set-socialbar').value = cachedSettings.adsterra_socialbar_code || '';
+        document.getElementById('set-enable-ads').checked = cachedSettings.enable_ads === 'true';
+        document.getElementById('set-enable-banners').checked = cachedSettings.enable_banners === 'true';
+        document.getElementById('set-enable-popunder').checked = cachedSettings.enable_popunder === 'true';
+
+        document.getElementById('set-site-domain').value = cachedSettings.site_domain || 'ngotra.site';
+        document.getElementById('set-site-name').value = cachedSettings.site_name || 'Ngotra AI';
+        document.getElementById('set-default-model').value = cachedSettings.default_model || 'gemini-3.7-flash';
+        document.getElementById('set-gemini-bl').value = cachedSettings.gemini_bl || '';
+        document.getElementById('set-gemini-proxy').value = cachedSettings.gemini_proxy || '';
+        document.getElementById('set-google-client-id').value = cachedSettings.google_client_id || '';
+        document.getElementById('set-google-client-secret').value = cachedSettings.google_client_secret || '';
+        const domain = cachedSettings.site_domain || 'ngotra.site';
+        document.getElementById('oauth-redirect-preview').innerText = `https://${domain}/api/auth/gemini/callback`;
+
+        // Social Media Settings
+        document.getElementById('set-social-discord').value = cachedSettings.social_discord || 'https://discord.gg/ngotra';
+        document.getElementById('set-social-telegram').value = cachedSettings.social_telegram || 'https://t.me/ngotra_ai';
+        document.getElementById('set-social-youtube').value = cachedSettings.social_youtube || 'https://youtube.com/@ngotra_ai';
+        document.getElementById('set-social-instagram').value = cachedSettings.social_instagram || 'https://instagram.com/ngotra_ai';
+        document.getElementById('set-social-x').value = cachedSettings.social_x || 'https://x.com/ngotra_ai';
+
+        document.getElementById('overview-rule-label').innerText = `Watch ${cachedSettings.ads_required_count || 3} Ads = ${Number(cachedSettings.tokens_per_cycle || 500000).toLocaleString('en-US')} Tokens`;
+        document.getElementById('overview-model-label').innerText = cachedSettings.default_model || 'gemini-3.7-flash';
+      } catch (e) {
+        console.error(e);
+      }
+    }
+
+    async function handleSaveSettings(e) {
+      e.preventDefault();
+      const updated = {
+        ads_required_count: document.getElementById('set-ads-count').value,
+        tokens_per_cycle: document.getElementById('set-tokens-per-cycle').value,
+        ad_cycle_cooldown_hours: document.getElementById('set-cycle-cooldown-hours').value,
+        ad_cooldown_seconds: document.getElementById('set-ad-cooldown').value,
+        adsterra_direct_links: document.getElementById('set-direct-links').value,
+        adsterra_banner_728x90: document.getElementById('set-banner-728').value,
+        adsterra_banner_300x250: document.getElementById('set-banner-300').value,
+        adsterra_banner_468x60: document.getElementById('set-banner-468').value,
+        adsterra_popunder_code: document.getElementById('set-popunder').value,
+        adsterra_socialbar_code: document.getElementById('set-socialbar').value,
+        enable_ads: document.getElementById('set-enable-ads').checked ? 'true' : 'false',
+        enable_banners: document.getElementById('set-enable-banners').checked ? 'true' : 'false',
+        enable_popunder: document.getElementById('set-enable-popunder').checked ? 'true' : 'false',
+        site_domain: document.getElementById('set-site-domain').value,
+        site_name: document.getElementById('set-site-name').value,
+        default_model: document.getElementById('set-default-model').value,
+        gemini_bl: document.getElementById('set-gemini-bl').value,
+        gemini_proxy: document.getElementById('set-gemini-proxy').value,
+        google_client_id: document.getElementById('set-google-client-id').value,
+        google_client_secret: document.getElementById('set-google-client-secret').value,
+        social_discord: document.getElementById('set-social-discord').value,
+        social_telegram: document.getElementById('set-social-telegram').value,
+        social_youtube: document.getElementById('set-social-youtube').value,
+        social_instagram: document.getElementById('set-social-instagram').value,
+        social_x: document.getElementById('set-social-x').value,
+      };
+
+      try {
+        const res = await fetch('/api/admin/settings', {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify({ settings: updated })
+        });
+        if (res.ok) {
+          alert('Settings saved successfully and upstream engine re-synchronized!');
+          await fetchSettings();
+        } else {
+          alert('Failed to save settings');
+        }
+      } catch (err) {
+        alert(err.message);
+      }
+    }
+
+    let searchTimeout = null;
+    function debounceUserSearch() {
+      if (searchTimeout) clearTimeout(searchTimeout);
+      searchTimeout = setTimeout(fetchUsers, 300);
+    }
+
+    async function fetchUsers() {
+      const q = document.getElementById('user-search-input')?.value || '';
+      try {
+        const url = q ? `/api/admin/users?search=${encodeURIComponent(q)}` : '/api/admin/users';
+        const res = await fetch(url);
+        const data = await res.json();
+        const tbody = document.getElementById('users-table-body');
+
+        if (!data.users || data.users.length === 0) {
+          tbody.innerHTML = `<tr><td colspan="7" class="py-6 text-center text-slate-400">No users found.</td></tr>`;
+          return;
+        }
+
+        tbody.innerHTML = data.users.map(u => {
+          let badgeClass = "bg-rose-100 text-rose-700";
+          if ((u.token_balance > 0) || u.is_vip) badgeClass = "bg-slate-100 text-slate-700";
+
+          return `
+            <tr class="hover:bg-slate-50 transition">
+              <td class="py-3 font-mono text-slate-400">${u.id}</td>
+              <td class="py-3 font-semibold text-slate-800">
+                ${escapeHtml(u.email)}
+                ${!u.is_active ? '<span class="ml-1 text-[10px] text-rose-600 bg-rose-50 px-1 rounded">(BANNED)</span>' : ''}
+              </td>
+              <td class="py-3 text-slate-600">
+                <span class="px-2 py-0.5 rounded text-[10px] font-medium bg-slate-100 text-slate-600">${u.role.toUpperCase()}</span>
+              </td>
+              <td class="py-3">
+                <span class="px-2 py-0.5 rounded-full text-[11px] font-bold ${badgeClass}">
+                  ${u.status_label}
+                </span>
+              </td>
+              <td class="py-3 text-slate-600 font-semibold">${u.total_ads_watched}</td>
+              <td class="py-3 text-slate-600">${u.total_requests} reqs</td>
+              <td class="py-3 text-right space-x-1">
+                <button onclick="grantTokens(${u.id}, 500000)" class="px-2.5 py-1 text-[10px] font-medium bg-slate-100 hover:bg-slate-200 text-slate-700 rounded transition">+500k</button>
+                <button onclick="grantTokens(${u.id}, 1000000)" class="px-2.5 py-1 text-[10px] font-medium bg-slate-100 hover:bg-slate-200 text-slate-700 rounded transition">+1M</button>
+                <button onclick="resetUserPass(${u.id})" class="px-2 py-1 text-[10px] font-bold bg-amber-50 hover:bg-amber-100 text-amber-700 rounded transition">Reset 0</button>
+                <button onclick="toggleUserBan(${u.id})" class="px-2 py-1 text-[10px] font-medium ${u.is_active ? 'bg-rose-50 text-rose-600' : 'bg-emerald-50 text-emerald-600'} rounded transition">
+                  ${u.is_active ? 'Ban' : 'Unban'}
+                </button>
+              </td>
+            </tr>
+          `;
+        }).join('');
+      } catch (e) {
+        console.error(e);
+      }
+    }
+
+    async function grantTokens(id, tokens) {
+      try {
+        const res = await fetch(`/api/admin/users/${id}/extend`, {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify({ tokens })
+        });
+        if (res.ok) {
+          const data = await res.json();
+          alert(data.message || `Granted +${tokens.toLocaleString('en-US')} tokens!`);
+          fetchUsers();
+          fetchMetrics();
+        }
+      } catch (e) {
+        alert(e.message);
+      }
+    }
+
+    async function resetUserPass(id) {
+      if (!confirm('Are you sure you want to reset this user token balance to 0?')) return;
+      try {
+        const res = await fetch(`/api/admin/users/${id}/reset`, { method: 'POST' });
+        if (res.ok) {
+          fetchUsers();
+          fetchMetrics();
+        }
+      } catch (e) {
+        alert(e.message);
+      }
+    }
+
+    async function toggleUserBan(id) {
+      try {
+        const res = await fetch(`/api/admin/users/${id}/status`, { method: 'POST' });
+        if (res.ok) {
+          fetchUsers();
+        }
+      } catch (e) {
+        alert(e.message);
+      }
+    }
+
+    async function fetchLogs() {
+      try {
+        const res = await fetch('/api/admin/logs?limit=50');
+        const data = await res.json();
+        const tbody = document.getElementById('logs-table-body');
+
+        if (!data.logs || data.logs.length === 0) {
+          tbody.innerHTML = `<tr><td colspan="8" class="py-6 text-center text-slate-400 font-sans">No API requests logged yet.</td></tr>`;
+          return;
+        }
+
+        tbody.innerHTML = data.logs.map(l => {
+          let statusBadge = "text-emerald-600";
+          if (l.status_code === 402) statusBadge = "text-amber-600";
+          else if (l.status_code >= 400) statusBadge = "text-rose-600";
+
+          return `
+            <tr class="hover:bg-slate-50 transition">
+              <td class="py-2.5 text-slate-500">${new Date(l.created_at * 1000).toLocaleTimeString()}</td>
+              <td class="py-2.5 text-slate-800 font-sans">${escapeHtml(l.email || 'Anonymous')}</td>
+              <td class="py-2.5 text-slate-800">${l.endpoint}</td>
+              <td class="py-2.5 text-slate-600">${l.model || '-'}</td>
+              <td class="py-2.5 font-bold ${statusBadge}">${l.status_code}</td>
+              <td class="py-2.5 text-slate-500">${Math.round(l.duration_ms)}ms</td>
+              <td class="py-2.5 text-slate-600">${l.tokens_estimated}</td>
+              <td class="py-2.5 text-slate-400">${l.ip_address || '-'}</td>
+            </tr>
+          `;
+        }).join('');
+      } catch (e) {
+        console.error(e);
+      }
+    }
+
+    function escapeHtml(str) {
+      return str ? str.replace(/&/g, "&amp;").replace(/</g, "&lt;").replace(/>/g, "&gt;").replace(/"/g, "&quot;") : '';
+    }
+
+    async function handleLogout() {
+      await fetch('/api/auth/logout', { method: 'POST' });
+      window.location.href = '/';
+    }
+
+    window.addEventListener('DOMContentLoaded', initAdmin);
+  </script>
+</body>
+</html>
