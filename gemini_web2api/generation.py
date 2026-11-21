@@ -1,32 +1,15 @@
-"""Generation helpers that apply a per-request Gemini cookie override.
+"""Generation helpers that pass the user's Gemini cookie explicitly.
 
-The platform gateway authenticates synchronously but generates inside async
-route handlers, so ContextVars can be lost. We expose wrappers that accept an
-explicit cookie and set the context variable immediately before generating.
+A ContextVar token cannot be set/reset across the thread/context switches used
+by StreamingResponse — doing so aborted streams after the first chunk. Passing
+the cookie as a plain argument is safe in every context.
 """
-import contextlib
-
-from .gemini import (
-    generate as _generate,
-    generate_stream as _generate_stream,
-    request_cookie_override,
-)
-
-
-@contextlib.contextmanager
-def _cookie_context(cookie: str):
-    token = request_cookie_override.set(cookie or None)
-    try:
-        yield
-    finally:
-        request_cookie_override.reset(token)
+from .gemini import generate as _generate, generate_stream as _generate_stream
 
 
 def generate(prompt, model_id, think_mode, file_refs=None, extra_fields=None, cookie: str = ""):
-    with _cookie_context(cookie):
-        return _generate(prompt, model_id, think_mode, file_refs, extra_fields)
+    return _generate(prompt, model_id, think_mode, file_refs, extra_fields, cookie)
 
 
 def generate_stream(prompt, model_id, think_mode, file_refs=None, extra_fields=None, cookie: str = ""):
-    with _cookie_context(cookie):
-        yield from _generate_stream(prompt, model_id, think_mode, file_refs, extra_fields)
+    yield from _generate_stream(prompt, model_id, think_mode, file_refs, extra_fields, cookie)

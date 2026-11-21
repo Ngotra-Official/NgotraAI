@@ -162,7 +162,7 @@ def _account_prefix() -> str:
     return f"/u/{auth_user}"
 
 
-def _build_headers() -> dict:
+def _build_headers(cookie: str = "") -> dict:
     account_prefix = _account_prefix()
     headers = {
         "Content-Type": "application/x-www-form-urlencoded",
@@ -173,7 +173,16 @@ def _build_headers() -> dict:
     }
     if account_prefix:
         headers["X-Goog-AuthUser"] = str(CONFIG["auth_user"])
-    cookie_str, sapisid = load_cookie()
+    # An explicit cookie is passed straight through from the platform gateway.
+    # This avoids ContextVar token resets across async/thread contexts during
+    # streaming, which aborted responses after the first chunk.
+    if cookie:
+        try:
+            cookie_str, sapisid = _parse_cookie_string(cookie)
+        except Exception:
+            cookie_str, sapisid = cookie, None
+    else:
+        cookie_str, sapisid = load_cookie()
     if cookie_str:
         headers["Cookie"] = cookie_str
     if sapisid:
@@ -279,11 +288,12 @@ def extract_response_text(raw: str) -> str:
     return clean_text(last_text)
 
 
-def generate(prompt: str, model_id: int, think_mode: int, file_refs: list = None, extra_fields: dict = None) -> str:
+def generate(prompt: str, model_id: int, think_mode: int, file_refs: list = None,
+             extra_fields: dict = None, cookie: str = "") -> str:
     """Non-streaming generation with retry."""
     body = _build_payload(prompt, model_id, think_mode, file_refs, extra_fields).encode()
     url = _get_url()
-    headers = _build_headers()
+    headers = _build_headers(cookie)
     ctx = _get_ssl_ctx()
     proxy = CONFIG.get("proxy")
 
@@ -309,17 +319,18 @@ def generate(prompt: str, model_id: int, think_mode: int, file_refs: list = None
     raise last_err
 
 
-def generate_stream(prompt: str, model_id: int, think_mode: int, file_refs: list = None, extra_fields: dict = None):
+def generate_stream(prompt: str, model_id: int, think_mode: int, file_refs: list = None,
+                    extra_fields: dict = None, cookie: str = ""):
     """Streaming generation via httpx with retry on connection failure."""
     if not HAS_HTTPX:
-        text = generate(prompt, model_id, think_mode, file_refs, extra_fields)
+        text = generate(prompt, model_id, think_mode, file_refs, extra_fields, cookie)
         if text:
             yield text
         return
 
     body = _build_payload(prompt, model_id, think_mode, file_refs, extra_fields)
     url = _get_url()
-    headers = _build_headers()
+    headers = _build_headers(cookie)
     client = _get_httpx_client()
 
     last_err = None
